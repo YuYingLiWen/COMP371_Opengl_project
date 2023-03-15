@@ -15,8 +15,11 @@
 #define DEBUG_LOG(x) //x
 #endif // _NDEBUG
 
+
 #define BLANK_LINE std::cout << std::endl
 #define PRINT_LOG(x) std::cout << ">> " << x << std::endl
+#define ERROR_LOG(x) std::cout << "ERROR: " << x << std::endl
+
 
 void APIENTRY glDebugOutput(GLenum source,
     GLenum type,
@@ -27,14 +30,12 @@ void APIENTRY glDebugOutput(GLenum source,
     const void* userParam)
 {
     // Source: https://learnopengl.com/In-Practice/Debugging
-    // Minor modifications.
+    // Removed useless errors.
     // 
     // ignore non-significant error/warning codes
     if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
 
-    DEBUG_LOG("---------------");
-    DEBUG_LOG("(" << id << "): " << message);
-
+    ERROR_LOG("(" << id << "): " << message);
     __debugbreak();
 }
 
@@ -52,6 +53,7 @@ static void EnableDebug()
 
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+
         glDebugMessageCallback(glDebugOutput, nullptr);
         glDebugMessageControl(GL_DONT_CARE, 
                               GL_DONT_CARE, 
@@ -154,7 +156,7 @@ int main(void)
     // Set Version
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
     /* Create a windowed mode window and its OpenGL context */
     window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
@@ -166,6 +168,8 @@ int main(void)
     
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
+
+    glfwSwapInterval(1);
 
     if (glewInit() != GLEW_OK) 
     { 
@@ -198,6 +202,10 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), positions, GL_STATIC_DRAW);
 
+    unsigned int vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
     // Sets the buffer attributes
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
     glEnableVertexAttribArray(0); // Enable's the buffer
@@ -209,6 +217,7 @@ int main(void)
         0, 1, 2,
         2, 0, 3
     };
+
     unsigned int ibo;
     glGenBuffers(1, &ibo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
@@ -221,12 +230,32 @@ int main(void)
     unsigned int shader = CreateShader(vs, fs);
     glUseProgram(shader);
 
+    int u_location = glGetUniformLocation(shader, "u_color");
+    //u_location 
+    glUniform4f(u_location, 0.50f, 0.1f, 0.1f, 1.0f);
+    
+    glBindVertexArray(0);
+    glUseProgram(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    float r = 0.0f;
+    float increment = 0.1f;
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
+        
+        glUseProgram(shader);
+        glBindVertexArray(vao);
 
+        glUniform4f(u_location, r, 0.1f, 0.5f, 1.0f);
+
+        if (r > 1.0f || r < 0.0f) increment = -increment;
+
+        r += increment;
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr); //Draws with index buffer
         //glDrawArrays(GL_TRIANGLES, 0, 3); //Draws raw without index buffer
