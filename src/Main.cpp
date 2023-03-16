@@ -9,62 +9,10 @@
 #include <fstream>
 #include <sstream>
 
-#ifdef _DEBUG
-#define DEBUG_LOG(x) std::cout << "DEBUG: " << x << std::endl
-#else
-#define DEBUG_LOG(x) //x
-#endif // _NDEBUG
+#include "Renderer.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
 
-
-#define BLANK_LINE std::cout << std::endl
-#define PRINT_LOG(x) std::cout << ">> " << x << std::endl
-#define ERROR_LOG(x) std::cout << "ERROR: " << x << std::endl
-
-
-void APIENTRY glDebugOutput(GLenum source,
-    GLenum type,
-    unsigned int id,
-    GLenum severity,
-    GLsizei length,
-    const char* message,
-    const void* userParam)
-{
-    // Source: https://learnopengl.com/In-Practice/Debugging
-    // Removed useless errors.
-    // 
-    // ignore non-significant error/warning codes
-    if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
-
-    ERROR_LOG("(" << id << "): " << message);
-    __debugbreak();
-}
-
-static void EnableDebug()
-{
-    // Must be called after glfw init & glew init.
-    // Source: https://learnopengl.com/In-Practice/Debugging
-
-    int flag = 0;
-    glGetIntegerv(GL_CONTEXT_FLAGS, &flag);
-
-    if (flag & GL_CONTEXT_FLAG_DEBUG_BIT) 
-    { 
-        PRINT_LOG("Debug context: enabled.");
-
-        glEnable(GL_DEBUG_OUTPUT);
-        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-
-        glDebugMessageCallback(glDebugOutput, nullptr);
-        glDebugMessageControl(GL_DONT_CARE, 
-                              GL_DONT_CARE, 
-                              GL_DONT_CARE, 
-                              0, 
-                              nullptr, 
-                              GL_TRUE);
-
-    }
-    else { PRINT_LOG("Debug context: disabled."); }
-}
 
 static std::string ParseShader(const std::string& file_path)
 {
@@ -196,11 +144,9 @@ int main(void)
         -0.5f,  0.5f,
     };
 
-    // Creating a buffer
-    unsigned int buffer;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), positions, GL_STATIC_DRAW);
+
+    VertexBuffer vbo(positions, sizeof(positions));
+
 
     unsigned int vao;
     glGenVertexArrays(1, &vao);
@@ -218,10 +164,7 @@ int main(void)
         2, 0, 3
     };
 
-    unsigned int ibo;
-    glGenBuffers(1, &ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 2 * 3 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+    IndexBuffer ibo(indices, sizeof(indices));
 
     /// Shaders
     std::string fs = ParseShader("res\\shaders\\fragment.shader");
