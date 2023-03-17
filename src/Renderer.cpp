@@ -19,6 +19,7 @@ void APIENTRY glDebugOutput(GLenum source,
     __debugbreak();
 }
 
+#if _DEBUG
 void EnableDebug()
 {
     // Must be called after glfw init & glew init.
@@ -45,7 +46,7 @@ void EnableDebug()
     }
     else { PRINT_LOG("Debug context: disabled."); }
 }
-
+#endif
 
 // Window Callbacks
 
