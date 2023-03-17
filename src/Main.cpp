@@ -13,7 +13,7 @@
 #include "VertexBuffer.h"
 #include "VertexArray.h"
 #include "ElementBuffer.h"
-
+#include "InputsHandler.h"
 
 static std::string ParseShader(const std::string& file_path)
 {
@@ -84,14 +84,6 @@ static unsigned int CreateShader(const std::string& vertex_shader, const std::st
     return program;
 }
 
-void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
-        glDrawElements(GL_TRIANGLES, 6, GL_INT, nullptr); // DEBUG - TO TEST DEBUG CALLBACK 
-
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-}
 
 
 
