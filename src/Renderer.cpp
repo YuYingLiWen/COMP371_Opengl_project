@@ -45,3 +45,12 @@ void EnableDebug()
     }
     else { PRINT_LOG("Debug context: disabled."); }
 }
+
+
+// Window Callbacks
+
+void WindowSizeCallback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+}
+

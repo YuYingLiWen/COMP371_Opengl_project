@@ -27,3 +27,7 @@ void APIENTRY glDebugOutput(GLenum source,
     const void* userParam);
 
 void EnableDebug();
+
+
+// Window Callbacks
+void WindowSizeCallback(GLFWwindow* window, int width, int height);

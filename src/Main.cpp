@@ -88,7 +88,12 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 {
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
         glDrawElements(GL_TRIANGLES, 6, GL_INT, nullptr); // DEBUG - TO TEST DEBUG CALLBACK 
+
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
 }
+
+
 
 int main(void)
 {
@@ -138,18 +143,6 @@ int main(void)
 
     PRINT_LOG(glGetString(GL_VERSION)); // Prints Opengl version
 
-
-
-    //unsigned int vao;
-    //glGenVertexArrays(1, &vao);
-    //glBindVertexArray(vao);
-
-
-    //// Sets the buffer attributes
-    //glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
-    //glEnableVertexAttribArray(0); // Enable's the buffer
-
-
     float positions[8] = {
     -0.5f, -0.5f,
      0.5f, -0.5f,
@@ -165,11 +158,8 @@ int main(void)
     };
 
     VertexArray vao;
-
     VertexBuffer vbo(positions, sizeof(positions), GL_STATIC_DRAW);
-
     ElementBuffer ebo(indices, sizeof(indices));
-
     vao.SetLayout(0, 2, GL_FLOAT, 2);
 
     /// Shaders
@@ -194,6 +184,10 @@ int main(void)
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
+        // Resize window
+        glfwSetFramebufferSizeCallback(window, WindowSizeCallback);
+
+
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
         
@@ -206,6 +200,8 @@ int main(void)
 
         r += increment;
 
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Draw as wired frame mode
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Draw filled
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr); //Draws with index buffer
         //glDrawArrays(GL_TRIANGLES, 0, 4); //Draws raw without index buffer
 

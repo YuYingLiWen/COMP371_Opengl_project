@@ -2,7 +2,7 @@
 
 #include "GLObject.h"
 #include "IBinder.h"
-#include "VertexBufferLayout.h"
+#include "Renderer.h"
 
 class VertexBuffer : public IBinder, GLObject
 {
