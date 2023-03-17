@@ -57,11 +57,17 @@ void ShaderProgram::Attach(GLenum type, const std::string& file_path)
     }
 }
 
-int ShaderProgram::GetUniformlocation(std::string name)
+void ShaderProgram::SetUniformValue4f(std::string name, float v0, float v1, float v2, float v3)
 {
-    // TODO: Needs to check if location is valid
+    int location = glGetUniformLocation(id, name.c_str());
 
-    return glGetUniformLocation(id, name.c_str());
+    if (location < 0)
+    {
+        PRINT_LOG("Uniform: \"" << name << "\" invalid.");
+        return;
+    }
+
+    glUniform4f(location, v0, v1, v2, v3);
 }
 
 std::string ShaderProgram::ParseShader(const std::string& file_path)

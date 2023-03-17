@@ -20,8 +20,7 @@ public:
 
 	void Attach(GLenum type, const std::string& file_path);
 
-	int GetUniformlocation(std::string name);
-
+	void SetUniformValue4f(std::string name, float v0, float v1, float v2, float v3);
 private:
     static std::string ParseShader(const std::string& file_path);
     static void CompileShader(GLenum type, const std::string& source, unsigned int& id, bool& validation);

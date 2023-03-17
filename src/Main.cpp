@@ -89,8 +89,7 @@ int main(void)
 
     // Set initial Color
     shader_program.Bind();
-    int u_location = shader_program.GetUniformlocation("u_color");
-    glUniform4f(u_location, 0.50f, 0.1f, 0.1f, 1.0f);
+    shader_program.SetUniformValue4f("u_color", 0.50f, 0.1f, 0.1f, 1.0f);
     
     glBindVertexArray(0);
     glUseProgram(0);
@@ -113,7 +112,8 @@ int main(void)
         shader_program.Bind();
         vao.Bind();
 
-        glUniform4f(u_location, r, 0.1f, 0.5f, 1.0f);
+
+        shader_program.SetUniformValue4f("u_color", r, 0.1f, 0.5f, 1.0f);
 
         if (r > 1.0f || r < 0.0f) increment = -increment;
 
