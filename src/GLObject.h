@@ -7,4 +7,9 @@ protected:
 protected:
 	GLObject();
 	virtual ~GLObject();
+
+public:
+	unsigned int GetID() const;
+
+
 };

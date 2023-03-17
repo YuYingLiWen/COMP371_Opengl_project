@@ -5,7 +5,6 @@
 
 #include <iostream>
 #include <string>
-#include <memory>
 #include <fstream>
 #include <sstream>
 
@@ -13,79 +12,9 @@
 #include "VertexBuffer.h"
 #include "VertexArray.h"
 #include "ElementBuffer.h"
-#include "InputsHandler.h"
+#include "ShaderProgram.h"
 
-static std::string ParseShader(const std::string& file_path)
-{
-    std::stringstream ss;
-    std::fstream stream(file_path);
-    std::string line;
-    while (!stream.eof())
-    {
-        std::getline(stream, line);
-        ss << line << '\n';
-    }
-
-    return ss.str();
-}
-
-static unsigned CompileShader(unsigned int type, const std::string& source)
-{
-    unsigned int id = glCreateShader(type);
-    const char* src = source.c_str();
-    glShaderSource(id, 1, &src, nullptr);
-    glCompileShader(id);
-
-    int result;
-    glGetShaderiv(id, GL_COMPILE_STATUS, &result);
-
-    if (result == GL_FALSE)
-    {
-        int length;
-        glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-        auto message = std::make_unique<char>();
-        glGetShaderInfoLog(id, length, &length, message.get());
-        PRINT_LOG("Failed to compile: " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader.");
-        PRINT_LOG(message);
-    }
-
-    return id;
-}
-
-static unsigned int CreateShader(const std::string& vertex_shader, const std::string& fragment_shader)
-{
-    unsigned int program = glCreateProgram();
-    unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertex_shader);
-    unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragment_shader);
-
-    glAttachShader(program, vs);
-    glAttachShader(program, fs);
-    glLinkProgram(program);
-    glValidateProgram(program);
-
-    int validation;
-    glGetProgramiv(program, GL_VALIDATE_STATUS, &validation);
-    if (validation == GL_FALSE)
-    {
-        int length{};
-        auto message = std::make_unique<char>();
-        glGetShaderInfoLog(program, length, &length, message.get());
-        PRINT_LOG("Shader program failed validation.");
-        PRINT_LOG(message);
-    }
-    else
-    {
-        PRINT_LOG("Shader program passed validation.");
-    }
-
-    glDetachShader(program, vs);
-    glDetachShader(program, fs);
-
-    return program;
-}
-
-
-
+extern void KeyCallback(GLFWwindow*, int, int, int, int);
 
 int main(void)
 {
@@ -154,15 +83,13 @@ int main(void)
     ElementBuffer ebo(indices, sizeof(indices));
     vao.SetLayout(0, 2, GL_FLOAT, 2);
 
-    /// Shaders
-    std::string fs = ParseShader("res\\shaders\\fragment.shader");
-    std::string vs = ParseShader("res\\shaders\\vertex.shader");
+    ShaderProgram shader_program;
+    shader_program.Attach(GL_VERTEX_SHADER, "res\\shaders\\vertex.shader");
+    shader_program.Attach(GL_FRAGMENT_SHADER, "res\\shaders\\fragment.shader");
 
-    unsigned int shader = CreateShader(vs, fs);
-    glUseProgram(shader);
-
-    int u_location = glGetUniformLocation(shader, "u_color");
-    //u_location 
+    // Set initial Color
+    shader_program.Bind();
+    int u_location = shader_program.GetUniformlocation("u_color");
     glUniform4f(u_location, 0.50f, 0.1f, 0.1f, 1.0f);
     
     glBindVertexArray(0);
@@ -183,7 +110,7 @@ int main(void)
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
         
-        glUseProgram(shader);
+        shader_program.Bind();
         vao.Bind();
 
         glUniform4f(u_location, r, 0.1f, 0.5f, 1.0f);
@@ -192,12 +119,12 @@ int main(void)
 
         r += increment;
 
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Draw as wired frame mode
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Draw filled
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Draw as wired frame mode
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Draw filled
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr); //Draws with index buffer
         //glDrawArrays(GL_TRIANGLES, 0, 4); //Draws raw without index buffer
 
-
+        shader_program.Unbind();
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
 
