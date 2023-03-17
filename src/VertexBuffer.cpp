@@ -1,8 +1,6 @@
 
 #include "VertexBuffer.h"
 
-#include "Renderer.h"
-
 // Vertex Buffer
 
 VertexBuffer::VertexBuffer(const void* data, unsigned int size, GLenum type)

@@ -1,13 +1,15 @@
 #pragma once
 
-#include "GLObject.h"
-#include "IBinder.h"
-#include "Renderer.h"
+#include <GLEW/glew.h>
+#include <GLFW/glfw3.h>
 
 #include <string>
-#include <fstream>
-#include <sstream>
-#include <memory>
+
+#include "GLObject.h"
+#include "IBinder.h"
+#include "Utils.h"
+
+
 
 class ShaderProgram : public IBinder, GLObject
 {

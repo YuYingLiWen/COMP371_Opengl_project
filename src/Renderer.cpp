@@ -19,7 +19,7 @@ void APIENTRY glDebugOutput(GLenum source,
     __debugbreak();
 }
 
-#if _DEBUG
+
 void EnableDebug()
 {
     // Must be called after glfw init & glew init.
@@ -46,7 +46,7 @@ void EnableDebug()
     }
     else { PRINT_LOG("Debug context: disabled."); }
 }
-#endif
+
 
 // Window Callbacks
 
@@ -55,3 +55,30 @@ void WindowSizeCallback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
+void Renderer::Draw(const VertexArray& vao, const ElementBuffer& ebo, const ShaderProgram& shader)
+{
+    vao.Bind();
+    shader.Bind();
+    //ebo.Bind();
+
+    glDrawElements(GL_TRIANGLES, ebo.GetCount(), GL_UNSIGNED_INT, nullptr); //Draws with index buffer
+
+}
+
+void Renderer::SetDrawMode(DrawMode mode) const
+{
+    switch (mode)
+    {
+    case DrawMode::FILL:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        break;
+    case DrawMode::WIREFRAME:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        break;
+    }
+}
+
+void Renderer::Clear() const
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+}

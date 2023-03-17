@@ -1,18 +1,7 @@
 
 
-#include <GLEW/glew.h>
-#include <GLFW/glfw3.h>
-
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <sstream>
 
 #include "Renderer.h"
-#include "VertexBuffer.h"
-#include "VertexArray.h"
-#include "ElementBuffer.h"
-#include "ShaderProgram.h"
 
 extern void KeyCallback(GLFWwindow*, int, int, int, int);
 
@@ -65,14 +54,14 @@ int main(void)
     PRINT_LOG(glGetString(GL_VERSION)); // Prints Opengl version
 
     float positions[8] = {
-    -0.5f, -0.5f,
-     0.5f, -0.5f,
-     0.5f,  0.5f,
-    -0.5f,  0.5f,
+    -0.5f, -0.5f, // 0 Bot Left
+     0.5f, -0.5f, // 1 Bot Right
+     0.5f,  0.5f, // 2 Top Right
+    -0.5f,  0.5f, // 3 Top Left
     };
 
     // Creating index buffer
-    unsigned int indices[]=
+    unsigned int indices[6]=
     {
         0, 1, 2,
         2, 0, 3
@@ -84,12 +73,17 @@ int main(void)
     vao.SetLayout(0, 2, GL_FLOAT, 2);
 
     ShaderProgram shader_program;
-    shader_program.Attach(GL_VERTEX_SHADER, "res\\shaders\\vertex.shader");
-    shader_program.Attach(GL_FRAGMENT_SHADER, "res\\shaders\\fragment.shader");
-
-    // Set initial Color
-    shader_program.Bind();
-    shader_program.SetUniformValue4f("u_color", 0.50f, 0.1f, 0.1f, 1.0f);
+    try {
+        shader_program.Attach(GL_VERTEX_SHADER, "res\\shaders\\vertex.shader");
+        shader_program.Attach(GL_FRAGMENT_SHADER, "res\\shaders\\fragment.shader");
+    }
+    catch (std::exception e)
+    {
+        PRINT_LOG(e.what());
+        PRINT_LOG("Press Any Key to exit.");
+        std::cin.get();
+        return -1;
+    }
     
     glBindVertexArray(0);
     glUseProgram(0);
@@ -99,6 +93,8 @@ int main(void)
     float r = 0.0f;
     float increment = 0.1f;
 
+    Renderer renderer;
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -107,10 +103,10 @@ int main(void)
 
 
         /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
+        renderer.Clear();
         
-        shader_program.Bind();
-        vao.Bind();
+        renderer.SetDrawMode(DrawMode::WIREFRAME);
+        renderer.Draw(vao, ebo, shader_program);
 
 
         shader_program.SetUniformValue4f("u_color", r, 0.1f, 0.5f, 1.0f);
@@ -118,13 +114,8 @@ int main(void)
         if (r > 1.0f || r < 0.0f) increment = -increment;
 
         r += increment;
-
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Draw as wired frame mode
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Draw filled
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr); //Draws with index buffer
-        //glDrawArrays(GL_TRIANGLES, 0, 4); //Draws raw without index buffer
-
-        shader_program.Unbind();
+        
+        //shader_program.Unbind();
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
 

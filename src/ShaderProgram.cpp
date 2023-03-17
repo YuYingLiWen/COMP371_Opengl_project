@@ -1,6 +1,11 @@
 #include "ShaderProgram.h"
 
+#include <fstream>
+#include <sstream>
+#include <memory>
+
 #define SHADER_TYPE(x) (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader"
+
 
 ShaderProgram::ShaderProgram()
 {
@@ -74,7 +79,11 @@ std::string ShaderProgram::ParseShader(const std::string& file_path)
 {
     {
         std::stringstream ss;
+
         std::fstream stream(file_path);
+
+        if (stream.fail()) throw std::invalid_argument("Fail to open: " + file_path);
+
         std::string line;
         while (!stream.eof())
         {

@@ -3,19 +3,13 @@
 #include <GLEW/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <iostream>
+#include "VertexArray.h"
+#include "ElementBuffer.h"
+#include "ShaderProgram.h"
+#include "VertexBuffer.h"
 
+#include "Utils.h"
 
-#ifdef _DEBUG
-#define DEBUG_LOG(x) std::cout << "DEBUG: " << x << std::endl
-#else
-#define DEBUG_LOG(x) //x
-#endif // _NDEBUG
-
-
-#define BLANK_LINE std::cout << std::endl
-#define PRINT_LOG(x) std::cout << ">> " << x << std::endl
-#define ERROR_LOG(x) std::cout << "ERROR: " << x << std::endl
 
 
 void APIENTRY glDebugOutput(GLenum source,
@@ -31,3 +25,15 @@ void EnableDebug();
 
 // Window Callbacks
 void WindowSizeCallback(GLFWwindow* window, int width, int height);
+
+enum DrawMode 
+{
+    FILL, WIREFRAME
+};
+class Renderer
+{
+public:
+    void Draw(const VertexArray& vao, const ElementBuffer& ebo, const ShaderProgram& shader);
+    void SetDrawMode(DrawMode mode) const;
+    void Clear() const;
+};

@@ -1,9 +1,9 @@
 
 #include "ElementBuffer.h"
 
-#include "Renderer.h"
 
 ElementBuffer::ElementBuffer(unsigned int* data, unsigned int count)
+    :count(count)
 {
     glGenBuffers(1, &id);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
@@ -23,4 +23,9 @@ void ElementBuffer::Bind() const
 void ElementBuffer::Unbind() const
 {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+unsigned int ElementBuffer::GetCount() const
+{
+    return count;
 }
