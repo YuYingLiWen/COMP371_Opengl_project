@@ -3,21 +3,23 @@
 
 #include "Renderer.h"
 
-VertexBuffer::VertexBuffer(const void* data, unsigned int size)
+// Vertex Buffer
+
+VertexBuffer::VertexBuffer(const void* data, unsigned int size, GLenum type)
 {
-    glGenBuffers(1, &renderer_id);
-    glBindBuffer(GL_ARRAY_BUFFER, renderer_id);
-    glBufferData(GL_ARRAY_BUFFER, size * sizeof(float), data, GL_STATIC_DRAW);
+    glGenBuffers(1, &id);
+    glBindBuffer(GL_ARRAY_BUFFER, id);
+    glBufferData(GL_ARRAY_BUFFER, size * sizeof(float), data, type);
 }
 
 VertexBuffer::~VertexBuffer()
 {
-    glDeleteBuffers(1, &renderer_id);
+    glDeleteBuffers(1, &id);
 }
 
 void VertexBuffer::Bind() const
 {
-    glBindBuffer(GL_ARRAY_BUFFER, renderer_id);
+    glBindBuffer(GL_ARRAY_BUFFER, id);
 }
 
 void VertexBuffer::Unbind() const

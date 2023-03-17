@@ -11,7 +11,8 @@
 
 #include "Renderer.h"
 #include "VertexBuffer.h"
-#include "IndexBuffer.h"
+#include "VertexArray.h"
+#include "ElementBuffer.h"
 
 
 static std::string ParseShader(const std::string& file_path)
@@ -137,25 +138,24 @@ int main(void)
 
     PRINT_LOG(glGetString(GL_VERSION)); // Prints Opengl version
 
+
+
+    //unsigned int vao;
+    //glGenVertexArrays(1, &vao);
+    //glBindVertexArray(vao);
+
+
+    //// Sets the buffer attributes
+    //glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+    //glEnableVertexAttribArray(0); // Enable's the buffer
+
+
     float positions[8] = {
-        -0.5f, -0.5f,
-         0.5f, -0.5f,
-         0.5f,  0.5f,
-        -0.5f,  0.5f,
+    -0.5f, -0.5f,
+     0.5f, -0.5f,
+     0.5f,  0.5f,
+    -0.5f,  0.5f,
     };
-
-
-    VertexBuffer vbo(positions, sizeof(positions));
-
-
-    unsigned int vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
-    // Sets the buffer attributes
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
-    glEnableVertexAttribArray(0); // Enable's the buffer
-
 
     // Creating index buffer
     unsigned int indices[]=
@@ -164,7 +164,13 @@ int main(void)
         2, 0, 3
     };
 
-    IndexBuffer ibo(indices, sizeof(indices));
+    VertexArray vao;
+
+    VertexBuffer vbo(positions, sizeof(positions), GL_STATIC_DRAW);
+
+    ElementBuffer ebo(indices, sizeof(indices));
+
+    vao.SetLayout(0, 2, GL_FLOAT, 2);
 
     /// Shaders
     std::string fs = ParseShader("res\\shaders\\fragment.shader");
@@ -192,7 +198,7 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT);
         
         glUseProgram(shader);
-        glBindVertexArray(vao);
+        vao.Bind();
 
         glUniform4f(u_location, r, 0.1f, 0.5f, 1.0f);
 
@@ -201,7 +207,7 @@ int main(void)
         r += increment;
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr); //Draws with index buffer
-        //glDrawArrays(GL_TRIANGLES, 0, 3); //Draws raw without index buffer
+        //glDrawArrays(GL_TRIANGLES, 0, 4); //Draws raw without index buffer
 
 
         /* Swap front and back buffers */

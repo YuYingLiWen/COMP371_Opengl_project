@@ -1,16 +1,15 @@
 #pragma once
 
+#include "GLObject.h"
 #include "IBinder.h"
+#include "VertexBufferLayout.h"
 
-class VertexBuffer : public IBinder
+class VertexBuffer : public IBinder, GLObject
 {
-private:
-	unsigned int renderer_id;
 public:
-	VertexBuffer(const void* data, unsigned int size);
+	VertexBuffer(const void* data, unsigned int size, GLenum type);
 	~VertexBuffer();
 
 	void Bind() const override;
 	void Unbind() const override;
-
 };
