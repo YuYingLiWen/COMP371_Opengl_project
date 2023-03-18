@@ -14,6 +14,9 @@ ShaderProgram::ShaderProgram()
 
 ShaderProgram::~ShaderProgram()
 {
+    delete fs_id;
+    delete vs_id;
+
 	glDeleteProgram(id);
 }
 
@@ -30,49 +33,86 @@ void ShaderProgram::Unbind() const
 void ShaderProgram::Attach(GLenum type, const std::string& file_path)
 {
     unsigned int shader_id;
-    bool compilation_successful = false;
 
     std::string shader_source = ParseShader(file_path);
+    bool valid_shader = false;
 
-    if (type == GL_VERTEX_SHADER) CompileShader(GL_VERTEX_SHADER, shader_source, shader_id, compilation_successful);
-    else if (type == GL_FRAGMENT_SHADER) CompileShader(GL_FRAGMENT_SHADER, shader_source, shader_id, compilation_successful);
+    if (type == GL_VERTEX_SHADER) 
+    {
+        if (valid_shader = CompileShader(GL_VERTEX_SHADER, shader_source, shader_id)) 
+            vs_id = new int(shader_id);
+    }
+    else if (type == GL_FRAGMENT_SHADER)
+    {
+        if (valid_shader = CompileShader(GL_FRAGMENT_SHADER, shader_source, shader_id)) 
+            fs_id = new int(shader_id);
+    }
 
-    if (!compilation_successful) return;
+     PRINT_LOG(SHADER_TYPE(type) << " " << (valid_shader ? "succesfully compiled." : "failed to compile."));
+
+
+    if (!valid_shader) return;
 
     glAttachShader(id, shader_id);
+}
+
+void ShaderProgram::LinkAndValidate()
+{
     glLinkProgram(id);
     glValidateProgram(id);
 
     int validation;
     glGetProgramiv(id, GL_VALIDATE_STATUS, &validation);
 
-    glDetachShader(id, shader_id);
+    glDetachShader(id, *vs_id);
+    glDetachShader(id, *fs_id);
 
     if (validation == GL_FALSE)
     {
         int length{};
         auto message = std::make_unique<char>();
         glGetShaderInfoLog(id, length, &length, message.get());
-        PRINT_LOG(SHADER_TYPE(type) << ": Shader program failed validation.");
+        PRINT_LOG("Shader program failed validation.");
         PRINT_LOG(message);
     }
     else
     {
-        PRINT_LOG(SHADER_TYPE(type) << ": Shader program passed validation.");
+        PRINT_LOG("Shader program passed validation.");
     }
 }
 
-void ShaderProgram::SetUniformValue4f(std::string name, float v0, float v1, float v2, float v3)
+void ShaderProgram::SetUniformValue4f(const std::string& name, float v0, float v1, float v2, float v3)
 {
     int location = glGetUniformLocation(id, name.c_str());
 
-    if (location < 0)
+    if (GetUniformLocation(name, location))
     {
-        PRINT_LOG("Uniform: \"" << name << "\" invalid.");
-        return;
+        glUniform4f(location, v0, v1, v2, v3);
+    }
+}
+
+void ShaderProgram::SetUniformValueMat4f(const std::string& name, const glm::mat4& matrix)
+{
+    int location;
+
+    if (GetUniformLocation(name, location))
+    {
+       glUniformMatrix4fv(location, 1, GL_FALSE, &matrix[0][0]);
+    }
+}
+
+bool ShaderProgram::GetUniformLocation(const std::string& name, int& location)
+{
+    int loc = glGetUniformLocation(id, name.c_str());
+
+    if (loc < 0)
+    {
+        PRINT_LOG("Uniform: \"" << name << "\" not found.");
+        return false;
     }
 
-    glUniform4f(location, v0, v1, v2, v3);
+    location = loc;
+    return true;
 }
 
 std::string ShaderProgram::ParseShader(const std::string& file_path)
@@ -95,7 +135,7 @@ std::string ShaderProgram::ParseShader(const std::string& file_path)
     }
 }
 
-void ShaderProgram::CompileShader(GLenum type, const std::string& source, unsigned int& id, bool& validation)
+bool ShaderProgram::CompileShader(GLenum type, const std::string& source, unsigned int& id)
 {
     id = glCreateShader(type);
     const char* src = source.c_str();
@@ -114,8 +154,8 @@ void ShaderProgram::CompileShader(GLenum type, const std::string& source, unsign
         PRINT_LOG("Failed to compile: " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader.");
         PRINT_LOG(message);
 
-        validation = false;
+        return false;
     }
 
-    validation = true;
+    return true;
 }

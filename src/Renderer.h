@@ -28,7 +28,7 @@ void WindowSizeCallback(GLFWwindow* window, int width, int height);
 
 enum DrawMode 
 {
-    FILL, WIREFRAME
+    FILLED, WIREFRAME
 };
 class Renderer
 {

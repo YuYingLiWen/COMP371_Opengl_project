@@ -1,9 +1,15 @@
 
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 #include "Renderer.h"
 
 extern void KeyCallback(GLFWwindow*, int, int, int, int);
+
+static unsigned int HEIGHT = 500;
+static unsigned int WIDTH = 500;
+
 
 int main(void)
 {
@@ -23,7 +29,7 @@ int main(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(WIDTH, HEIGHT, "Hello World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -53,15 +59,15 @@ int main(void)
 
     PRINT_LOG(glGetString(GL_VERSION)); // Prints Opengl version
 
-    float positions[8] = {
-    -0.5f, -0.5f, // 0 Bot Left
-     0.5f, -0.5f, // 1 Bot Right
-     0.5f,  0.5f, // 2 Top Right
-    -0.5f,  0.5f, // 3 Top Left
+    float positions[] = {
+        -1.5f, -1.5f, -1.0f,   // 0 Bot Left
+         1.5f, -1.5f, -1.0f,   // 1 Bot Right
+         1.5f,  1.5f, -1.0f,   // 2 Top Right
+        -1.5f,  1.5f, -1.0f    // 3 Top Left
     };
 
     // Creating index buffer
-    unsigned int indices[6]=
+    unsigned int indices[]=
     {
         0, 1, 2,
         2, 0, 3
@@ -70,12 +76,13 @@ int main(void)
     VertexArray vao;
     VertexBuffer vbo(positions, sizeof(positions), GL_STATIC_DRAW);
     ElementBuffer ebo(indices, sizeof(indices));
-    vao.SetLayout(0, 2, GL_FLOAT, 2);
+    vao.SetLayout(0, 3, GL_FLOAT, 3);
 
     ShaderProgram shader_program;
-    try {
-        shader_program.Attach(GL_VERTEX_SHADER, "res\\shaders\\vertex.shader");
+    try 
+    {
         shader_program.Attach(GL_FRAGMENT_SHADER, "res\\shaders\\fragment.shader");
+        shader_program.Attach(GL_VERTEX_SHADER, "res\\shaders\\vertex.shader");
     }
     catch (std::exception e)
     {
@@ -85,15 +92,28 @@ int main(void)
         return -1;
     }
     
-    glBindVertexArray(0);
-    glUseProgram(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    shader_program.LinkAndValidate();
+
+    vao.Unbind();
+    shader_program.Unbind();
+    vbo.Unbind();
+    ebo.Unbind();
 
     float r = 0.0f;
     float increment = 0.1f;
 
     Renderer renderer;
+
+    float fov = 45.0f;
+
+    glm::mat4 projection = glm::perspective(glm::radians(fov), ((float)WIDTH / (float)HEIGHT), 0.1f, 100.0f);
+    //projection = glm::ortho(0.0f, (float)WIDTH, 0.0f, (float)HEIGHT, 1.0f, 100.0f); //glm::perspective(glm::radians(fov), (float)(WIDTH / HEIGHT), 0.1f, 100.0f);
+
+    glm::mat4 view = glm::mat4(1.0f);
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -10.0f));
+
+    glm::mat4 model = glm::mat4(1.0f);
+    
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -101,12 +121,17 @@ int main(void)
         // Resize window
         glfwSetFramebufferSizeCallback(window, WindowSizeCallback);
 
-
         /* Render here */
         renderer.Clear();
         
-        renderer.SetDrawMode(DrawMode::WIREFRAME);
+        renderer.SetDrawMode(DrawMode::FILLED);
         renderer.Draw(vao, ebo, shader_program);
+
+        model = glm::rotate(model, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+        shader_program.SetUniformValueMat4f("u_projection", projection);
+        shader_program.SetUniformValueMat4f("u_model", model);
+        shader_program.SetUniformValueMat4f("u_view", view);
 
 
         shader_program.SetUniformValue4f("u_color", r, 0.1f, 0.5f, 1.0f);
@@ -115,7 +140,7 @@ int main(void)
 
         r += increment;
         
-        //shader_program.Unbind();
+        shader_program.Unbind();
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
 

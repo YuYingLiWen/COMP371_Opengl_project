@@ -69,7 +69,7 @@ void Renderer::SetDrawMode(DrawMode mode) const
 {
     switch (mode)
     {
-    case DrawMode::FILL:
+    case DrawMode::FILLED:
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         break;
     case DrawMode::WIREFRAME:
