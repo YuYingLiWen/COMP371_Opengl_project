@@ -65,19 +65,6 @@ void Renderer::Draw(const VertexArray& vao, const ElementBuffer& ebo, const Shad
 
 }
 
-void Renderer::SetDrawMode(DrawMode mode) const
-{
-    switch (mode)
-    {
-    case DrawMode::FILLED:
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        break;
-    case DrawMode::WIREFRAME:
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        break;
-    }
-}
-
 void Renderer::Clear() const
 {
     glClear(GL_COLOR_BUFFER_BIT);

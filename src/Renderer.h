@@ -26,14 +26,10 @@ void EnableDebug();
 // Window Callbacks
 void WindowSizeCallback(GLFWwindow* window, int width, int height);
 
-enum DrawMode 
-{
-    FILLED, WIREFRAME
-};
+
 class Renderer
 {
 public:
     void Draw(const VertexArray& vao, const ElementBuffer& ebo, const ShaderProgram& shader);
-    void SetDrawMode(DrawMode mode) const;
     void Clear() const;
 };

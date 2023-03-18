@@ -7,8 +7,8 @@
 
 extern void KeyCallback(GLFWwindow*, int, int, int, int);
 
-static unsigned int HEIGHT = 500;
-static unsigned int WIDTH = 500;
+static unsigned int HEIGHT = 600;
+static unsigned int WIDTH = 800;
 
 
 int main(void)
@@ -60,17 +60,48 @@ int main(void)
     PRINT_LOG(glGetString(GL_VERSION)); // Prints Opengl version
 
     float positions[] = {
-        -1.5f, -1.5f, -1.0f,   // 0 Bot Left
-         1.5f, -1.5f, -1.0f,   // 1 Bot Right
-         1.5f,  1.5f, -1.0f,   // 2 Top Right
-        -1.5f,  1.5f, -1.0f    // 3 Top Left
+
+        // Front face
+        -1.0f, -1.0f, 0.0f,   // 0 Bot Left
+         1.0f, -1.0f, 0.0f,   // 1 Bot Right
+         1.0f,  1.0f, 0.0f,   // 2 Top Right
+        -1.0f,  1.0f, 0.0f,    // 3 Top Left
+
+        // Back face
+        -1.0f, -1.0f, -2.0f,   // 4 Bot Left
+         1.0f, -1.0f, -2.0f,   // 5 Bot Right
+         1.0f,  1.0f, -2.0f,   // 6 Top Right
+        -1.0f,  1.0f, -2.0f    // 7 Top Left
     };
 
     // Creating index buffer
     unsigned int indices[]=
     {
+        // front face
         0, 1, 2,
-        2, 0, 3
+        2, 0, 3,
+
+        //Back face
+        4,5,6,
+        6,4,7,
+
+        // Top face
+        3,2,6,
+        6,3,7,
+
+        // Bottom face
+        0,1,5,
+        5,0,4,
+
+        //Left face
+        1,2,6,
+        6,5,1,
+
+        //Right face
+        0,3,7,
+        7,4,0
+
+
     };
 
     VertexArray vao;
@@ -124,10 +155,9 @@ int main(void)
         /* Render here */
         renderer.Clear();
         
-        renderer.SetDrawMode(DrawMode::FILLED);
         renderer.Draw(vao, ebo, shader_program);
 
-        model = glm::rotate(model, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 1.0f));
 
         shader_program.SetUniformValueMat4f("u_projection", projection);
         shader_program.SetUniformValueMat4f("u_model", model);
