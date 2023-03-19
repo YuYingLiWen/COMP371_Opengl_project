@@ -11,11 +11,13 @@
 #include "Renderer.h"
 
 extern void KeyCallback(GLFWwindow*, int, int, int, int);
-
+extern void UserInputs();
 static void CustomImGui(ImGuiIO& io, bool& show_demo_window, bool& show_another_window, ImVec4& clear_color);
 
 static const unsigned int HEIGHT = 720;
 static const unsigned int WIDTH = 1280;
+glm::mat4 view = glm::mat4(1.0f);
+
 
 static void glfwErrorCallback(int error, const char* description)
 {
@@ -55,8 +57,6 @@ int main(void)
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
 
-
-
     if (glewInit() != GLEW_OK) 
     { 
         PRINT_LOG("GLEW INIT ERROR."); 
@@ -65,7 +65,9 @@ int main(void)
     else
         PRINT_LOG("GLEW INIT SUCCESSFUL.");
 
-
+    //gl enables
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS); // The default anyway
 
     // Debug
 #ifdef _DEBUG
@@ -115,13 +117,17 @@ int main(void)
         //Right face
         0,3,7,
         7,4,0
-
-
     };
 
     VertexArray vao;
     VertexBuffer vbo(positions, sizeof(positions), GL_STATIC_DRAW);
     ElementBuffer ebo(indices, sizeof(indices));
+    vao.SetLayout(0, 3, GL_FLOAT, 3);
+
+
+    VertexArray vao2;
+    VertexBuffer vbo2(positions, sizeof(positions), GL_STATIC_DRAW);
+    ElementBuffer ebo2(indices, sizeof(indices));
     vao.SetLayout(0, 3, GL_FLOAT, 3);
 
     ShaderProgram shader_program;
@@ -154,7 +160,6 @@ int main(void)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
@@ -168,9 +173,9 @@ int main(void)
     float fov = 45.0f;
 
     glm::mat4 projection = glm::perspective(glm::radians(fov), ((float)WIDTH / (float)HEIGHT), 0.1f, 100.0f);
-    //projection = glm::ortho(0.0f, (float)WIDTH, 0.0f, (float)HEIGHT, 1.0f, 100.0f); //glm::perspective(glm::radians(fov), (float)(WIDTH / HEIGHT), 0.1f, 100.0f);
+    //glm::mat4 projection = glm::ortho(0.0f, (float)WIDTH, 0.0f, (float)HEIGHT, 1.0f, 100.0f); //glm::perspective(glm::radians(fov), (float)(WIDTH / HEIGHT), 0.1f, 100.0f);
 
-    glm::mat4 view = glm::mat4(1.0f);
+    //glm::mat4 view = glm::mat4(1.0f);
     view = glm::translate(view, glm::vec3(0.0f, 0.0f, -10.0f));
 
     glm::mat4 model = glm::mat4(1.0f);
@@ -181,22 +186,39 @@ int main(void)
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+    glm::mat4 model2 = glm::mat4(1.0f);
+    model2 = glm::translate(model2, glm::vec3(5.0f, 0.0f, 0.0f));
+
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         renderer.Clear();
 
+        UserInputs();
+
         /* Render here */
+
         renderer.Draw(vao, ebo, shader_program);
 
-        model = glm::rotate(model, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 1.0f));
+        model = glm::rotate(model, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
         shader_program.SetUniformValueMat4f("u_projection", projection);
         shader_program.SetUniformValueMat4f("u_model", model);
         shader_program.SetUniformValueMat4f("u_view", view);
+        shader_program.SetUniformValue4f("u_color", r, 1.0f, 0.0f, 0.0f);
 
 
-        shader_program.SetUniformValue4f("u_color", r, 0.1f, 0.5f, 1.0f);
+        renderer.Draw(vao2, ebo2, shader_program);
+        model2 = glm::rotate(model2, glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+        shader_program.SetUniformValueMat4f("u_projection", projection);
+        shader_program.SetUniformValueMat4f("u_view", view);
+
+        shader_program.SetUniformValueMat4f("u_model", model2);
+
+        shader_program.SetUniformValue4f("u_color", r, 0.0f, 1.0f, 0.0f);
+
 
         if (r > 1.0f || r < 0.0f) increment = -increment;
 
@@ -204,8 +226,9 @@ int main(void)
         
         shader_program.Unbind();
 
-        CustomImGui(io,show_demo_window,show_another_window,clear_color);
 
+        // Render ImGui on top of everything
+        CustomImGui(io,show_demo_window,show_another_window,clear_color);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
