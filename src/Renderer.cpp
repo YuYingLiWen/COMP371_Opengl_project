@@ -59,7 +59,6 @@ void Renderer::Draw(const VertexArray& vao, const ElementBuffer& ebo, const Shad
 {
     vao.Bind();
     shader.Bind();
-    //ebo.Bind();
 
     glDrawElements(GL_TRIANGLES, ebo.GetCount(), GL_UNSIGNED_INT, nullptr); //Draws with index buffer
 

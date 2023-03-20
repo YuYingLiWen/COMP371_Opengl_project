@@ -63,8 +63,6 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 
 void UserInputs()
 {
-
-
     if (W_IS_HELD) view = glm::translate(view, glm::vec3(0.0f, -1.0f, 0.0f) * key_speed * AppTime::DeltaTime());
     if (A_IS_HELD) view = glm::translate(view, glm::vec3(1.0f, 0.0f, 0.0f) * key_speed * AppTime::DeltaTime());
     if (S_IS_HELD) view = glm::translate(view, glm::vec3(0.0f, 1.0f, 0.0f) * key_speed * AppTime::DeltaTime());
@@ -72,6 +70,4 @@ void UserInputs()
 
     if (Q_IS_HELD) view = glm::rotate(view, glm::radians(rot_degree) * rot_speed * AppTime::DeltaTime(), glm::vec3(0.0f, -1.0f, 0.0f));
     if (E_IS_HELD) view = glm::rotate(view, glm::radians(rot_degree) * rot_speed * AppTime::DeltaTime(), glm::vec3(0.0f, 1.0f, 0.0f));
-    
-    
 }

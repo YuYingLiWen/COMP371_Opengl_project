@@ -21,6 +21,8 @@ static void CustomImGui(ImGuiIO&, bool&, bool&, ImVec4&);
 
 static const unsigned int HEIGHT = 720;
 static const unsigned int WIDTH = 1280;
+static const float FOV = 65.0f;
+
 glm::mat4 view = glm::mat4(1.0f);
 
 
@@ -175,14 +177,12 @@ int main(void)
     ImGui_ImplOpenGL3_Init("#version 460");
 
 
+    glm::mat4 projection = glm::perspective(glm::radians(FOV), ((float)WIDTH / (float)HEIGHT), 0.1f, 100.0f);
 
-    float fov = 45.0f;
-
-    glm::mat4 projection = glm::perspective(glm::radians(fov), ((float)WIDTH / (float)HEIGHT), 0.1f, 100.0f);
-    //glm::mat4 projection = glm::ortho(0.0f, (float)WIDTH, 0.0f, (float)HEIGHT, 1.0f, 100.0f); //glm::perspective(glm::radians(fov), (float)(WIDTH / HEIGHT), 0.1f, 100.0f);
-
-    //glm::mat4 view = glm::mat4(1.0f);
+    // Force the camera to be a the following settings
+    view = glm::rotate(view, glm::radians(25.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     view = glm::translate(view, glm::vec3(0.0f, 0.0f, -10.0f));
+
 
     glm::mat4 model = glm::mat4(1.0f);
     
@@ -194,6 +194,8 @@ int main(void)
 
     glm::mat4 model2 = glm::mat4(1.0f);
     model2 = glm::translate(model2, glm::vec3(5.0f, 0.0f, 0.0f));
+
+    glm::mat4 transform = glm::mat4(1.0f);
 
 
     /* Loop until the user closes the window */
@@ -211,21 +213,16 @@ int main(void)
 
         model = glm::rotate(model, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-        shader_program.SetUniformValueMat4f("u_projection", projection);
-        shader_program.SetUniformValueMat4f("u_model", model);
-        shader_program.SetUniformValueMat4f("u_view", view);
+        shader_program.SetUniformValueMat4f("u_mvp",  projection * view * model);
         shader_program.SetUniformValue4f("u_color", r, 1.0f, 0.0f, 0.0f);
 
 
-        renderer.Draw(vao2, ebo2, shader_program);
+        /*renderer.Draw(vao2, ebo2, shader_program);
         model2 = glm::rotate(model2, glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-        shader_program.SetUniformValueMat4f("u_projection", projection);
-        shader_program.SetUniformValueMat4f("u_view", view);
+        shader_program.SetUniformValueMat4f("u_mvp", projection* view* model2);
 
-        shader_program.SetUniformValueMat4f("u_model", model2);
-
-        shader_program.SetUniformValue4f("u_color", r, 0.0f, 1.0f, 0.0f);
+        shader_program.SetUniformValue4f("u_color", r, 0.0f, 1.0f, 0.0f);*/
 
 
         if (r > 1.0f || r < 0.0f) increment = -increment;
