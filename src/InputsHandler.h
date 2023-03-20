@@ -4,6 +4,8 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include <GLFW/glfw3.h>
 
+namespace AppTime { extern float DeltaTime(); }
+
 extern glm::mat4 view;
 static bool wiremesh_toggle = false;
 
@@ -13,12 +15,6 @@ static bool S_IS_HELD = false;
 static bool D_IS_HELD = false;
 static bool Q_IS_HELD = false;
 static bool E_IS_HELD = false;
-
-
-static float last_frame = 0.0f;
-static float curr_frame = 0.0f;
-
-static float delta_time = 0.0f;
 
 static float key_speed = 5.0f;
 static float rot_degree = 5.0f;
@@ -67,16 +63,15 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 
 void UserInputs()
 {
-    curr_frame = glfwGetTime();
-    delta_time = curr_frame - last_frame;
 
-    if (W_IS_HELD) view = glm::translate(view, glm::vec3(0.0f, -1.0f, 0.0f) * key_speed * delta_time);
-    if (A_IS_HELD) view = glm::translate(view, glm::vec3(1.0f, 0.0f, 0.0f) * key_speed * delta_time);
-    if (S_IS_HELD) view = glm::translate(view, glm::vec3(0.0f, 1.0f, 0.0f) * key_speed * delta_time);
-    if (D_IS_HELD) view = glm::translate(view, glm::vec3(-1.0f, 0.0f, 0.0f) * key_speed * delta_time);
 
-    if (Q_IS_HELD) view = glm::rotate(view, glm::radians(rot_degree) * rot_speed * delta_time, glm::vec3(0.0f, -1.0f, 0.0f));
-    if (E_IS_HELD) view = glm::rotate(view, glm::radians(rot_degree) * rot_speed * delta_time, glm::vec3(0.0f, 1.0f, 0.0f));
+    if (W_IS_HELD) view = glm::translate(view, glm::vec3(0.0f, -1.0f, 0.0f) * key_speed * AppTime::DeltaTime());
+    if (A_IS_HELD) view = glm::translate(view, glm::vec3(1.0f, 0.0f, 0.0f) * key_speed * AppTime::DeltaTime());
+    if (S_IS_HELD) view = glm::translate(view, glm::vec3(0.0f, 1.0f, 0.0f) * key_speed * AppTime::DeltaTime());
+    if (D_IS_HELD) view = glm::translate(view, glm::vec3(-1.0f, 0.0f, 0.0f) * key_speed * AppTime::DeltaTime());
+
+    if (Q_IS_HELD) view = glm::rotate(view, glm::radians(rot_degree) * rot_speed * AppTime::DeltaTime(), glm::vec3(0.0f, -1.0f, 0.0f));
+    if (E_IS_HELD) view = glm::rotate(view, glm::radians(rot_degree) * rot_speed * AppTime::DeltaTime(), glm::vec3(0.0f, 1.0f, 0.0f));
     
-    last_frame = curr_frame;
+    
 }

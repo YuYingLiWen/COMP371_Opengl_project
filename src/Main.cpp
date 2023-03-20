@@ -9,6 +9,10 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "Renderer.h"
+#include "AppTime.h"
+
+namespace AppTime { extern void UpdateTime(); }
+
 
 void ScrollCallback(GLFWwindow*, double, double);
 extern void KeyCallback(GLFWwindow*, int, int, int, int);
@@ -195,6 +199,8 @@ int main(void)
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
+        AppTime::UpdateTime();
+
         renderer.Clear();
 
         UserInputs();
