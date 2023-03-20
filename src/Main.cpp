@@ -87,16 +87,16 @@ int main(void)
     float positions[] = {
 
         // Front face
-        -1.0f, -1.0f, 0.0f,   // 0 Bot Left
-         1.0f, -1.0f, 0.0f,   // 1 Bot Right
-         1.0f,  1.0f, 0.0f,   // 2 Top Right
-        -1.0f,  1.0f, 0.0f,    // 3 Top Left
+        -1.0f, -1.0f, 1.0f,   // 0 Bot Left
+         1.0f, -1.0f, 1.0f,   // 1 Bot Right
+         1.0f,  1.0f, 1.0f,   // 2 Top Right
+        -1.0f,  1.0f, 1.0f,    // 3 Top Left
 
         // Back face
-        -1.0f, -1.0f, -2.0f,   // 4 Bot Left
-         1.0f, -1.0f, -2.0f,   // 5 Bot Right
-         1.0f,  1.0f, -2.0f,   // 6 Top Right
-        -1.0f,  1.0f, -2.0f    // 7 Top Left
+        -1.0f, -1.0f, -1.0f,   // 4 Bot Left
+         1.0f, -1.0f, -1.0f,   // 5 Bot Right
+         1.0f,  1.0f, -1.0f,   // 6 Top Right
+        -1.0f,  1.0f, -1.0f    // 7 Top Left
     };
 
     // Creating index buffer
@@ -195,8 +195,6 @@ int main(void)
     glm::mat4 model2 = glm::mat4(1.0f);
     model2 = glm::translate(model2, glm::vec3(5.0f, 0.0f, 0.0f));
 
-    glm::mat4 transform = glm::mat4(1.0f);
-
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -211,18 +209,25 @@ int main(void)
 
         renderer.Draw(vao, ebo, shader_program);
 
+        
+
         model = glm::rotate(model, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-        shader_program.SetUniformValueMat4f("u_mvp",  projection * view * model);
+        shader_program.SetUniformValueMat4f("u_projection", projection);
+        shader_program.SetUniformValueMat4f("u_model", model);
+        shader_program.SetUniformValueMat4f("u_view", view);
         shader_program.SetUniformValue4f("u_color", r, 1.0f, 0.0f, 0.0f);
 
 
-        /*renderer.Draw(vao2, ebo2, shader_program);
+        renderer.Draw(vao2, ebo2, shader_program);
         model2 = glm::rotate(model2, glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-        shader_program.SetUniformValueMat4f("u_mvp", projection* view* model2);
+        shader_program.SetUniformValueMat4f("u_projection", projection);
+        shader_program.SetUniformValueMat4f("u_view", view);
 
-        shader_program.SetUniformValue4f("u_color", r, 0.0f, 1.0f, 0.0f);*/
+        shader_program.SetUniformValueMat4f("u_model", model2);
+
+        shader_program.SetUniformValue4f("u_color", r, 0.0f, 1.0f, 0.0f);
 
 
         if (r > 1.0f || r < 0.0f) increment = -increment;
