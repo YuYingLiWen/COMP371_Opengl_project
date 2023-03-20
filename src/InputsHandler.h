@@ -59,6 +59,11 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     else if (key == GLFW_KEY_E && action == GLFW_RELEASE)E_IS_HELD = false;
 }
 
+void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, yoffset));
+}
+
 
 void UserInputs()
 {

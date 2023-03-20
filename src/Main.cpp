@@ -10,9 +10,10 @@
 
 #include "Renderer.h"
 
+void ScrollCallback(GLFWwindow*, double, double);
 extern void KeyCallback(GLFWwindow*, int, int, int, int);
 extern void UserInputs();
-static void CustomImGui(ImGuiIO& io, bool& show_demo_window, bool& show_another_window, ImVec4& clear_color);
+static void CustomImGui(ImGuiIO&, bool&, bool&, ImVec4&);
 
 static const unsigned int HEIGHT = 720;
 static const unsigned int WIDTH = 1280;
@@ -50,6 +51,7 @@ int main(void)
     }
 
     // glfw Callbacks
+    glfwSetScrollCallback(window, ScrollCallback);
     glfwSetKeyCallback(window, KeyCallback);
     glfwSetErrorCallback(glfwErrorCallback);
 
