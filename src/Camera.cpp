@@ -22,28 +22,31 @@ extern Camera camera;
 #define DEFAULT_CAMERA_ROTATION glm::vec3(35.0f, 45.0f, 0.0f)
 #define DEFAULT_CAMERA_POSITION glm::vec3(0.0f, 0.0f, 10.0f)
 
-Camera::Camera() 
-{
-	fov = 65.0f;
-    position = DEFAULT_CAMERA_POSITION;
-	forward = glm::vec3(0.0f, 0.0f, -1.0f);
-	up = glm::vec3(0.0f, 1.0f, 0.0f);
-	height = 780;
-	width = 1280;
-    matrix = glm::lookAt(position, position + forward, up);
-	aspect_ratio = (float)width / (float)height;
-    rotation = DEFAULT_CAMERA_ROTATION;
-};
+Camera::Camera()
+    :
+    fov          (65.0f), 
+    position     (DEFAULT_CAMERA_POSITION),
+    forward      (glm::vec3(0.0f, 0.0f, -1.0f)),
+	up           (glm::vec3(0.0f, 1.0f, 0.0f)),
+	height       (780),
+	width        (1280),
+    matrix       (glm::lookAt(position, position + forward, up)),
+	aspect_ratio ((float)width / (float)height),
+    rotation     (DEFAULT_CAMERA_ROTATION)
+{}
 
 Camera::Camera(unsigned int height, unsigned int width, float fov)
-	: height(height), width(width), fov(fov), aspect_ratio((float)width / (float)height)
-{
-	position = DEFAULT_CAMERA_POSITION;
-	forward = glm::vec3(0.0f, 0.0f, -1.0f);
-	up = glm::vec3(0.0f, 1.0f, 0.0f);
-    matrix = glm::lookAt(position, position + forward, up);
-    rotation = DEFAULT_CAMERA_ROTATION;
-}
+	: 
+    height       (height), 
+    width        (width), 
+    fov          (fov), 
+    aspect_ratio ((float)width / (float)height),
+    position     (DEFAULT_CAMERA_POSITION),
+    forward      (glm::vec3(0.0f, 0.0f, -1.0f)),
+    up           (glm::vec3(0.0f, 1.0f, 0.0f)),
+    matrix       (glm::lookAt(position, position + forward, up)),
+    rotation     (DEFAULT_CAMERA_ROTATION)
+{}
 
 
 Camera::~Camera()

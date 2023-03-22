@@ -10,7 +10,7 @@ namespace AppTime
 {
 	void UpdateTime()
 	{
-		curr_frame = glfwGetTime();
+		curr_frame = (float)glfwGetTime();
 		delta_time = curr_frame - last_frame;
 		last_frame = curr_frame;
 	}

@@ -11,7 +11,7 @@ class SceneObject
 {
 private:
 	unsigned int vao = -1, vbo = -1, ebo = -1;
-	unsigned int ebo_count = 0;
+	unsigned int ebo_count = -1;
 
 public: 
 	SceneObject(); // Empty Scene Object

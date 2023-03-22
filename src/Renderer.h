@@ -3,10 +3,7 @@
 #include <GLEW/glew.h>
 #include <GLFW/glfw3.h>
 
-
 #include "Utils.h"
-
-#include "ShaderProgram.h"
 #include "SceneObject.h"
 
 void APIENTRY glDebugOutput(GLenum source,

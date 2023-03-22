@@ -27,8 +27,8 @@ public:
 	glm::vec3 Right() const;
 	glm::mat4 GetView();
 	glm::mat4 GetProjection() const;
+	
 	glm::mat4 LookAt(glm::vec3 postion) const;
-
 	float& GetKeySpeed();
 
 	void UserInputs();
@@ -54,6 +54,6 @@ private:
 	float aspect_ratio;
 
 	float key_speed = 5.0f;
-	glm::mat4 matrix;
+	glm::mat4 matrix = glm::mat4(1.0f);
 };
 
