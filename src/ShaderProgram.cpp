@@ -16,7 +16,8 @@ ShaderProgram::~ShaderProgram()
 
 void ShaderProgram::Bind() const
 {
-	glUseProgram(program_id);
+    if (valid) glUseProgram(program_id);
+    else PRINT_LOG("Invalid shader program, please fix before use.");
 }
 
 void ShaderProgram::Unbind() const
@@ -26,7 +27,7 @@ void ShaderProgram::Unbind() const
 
 void ShaderProgram::Attach(const std::string& vs, const std::string& fs)
 {
-    std::string vs_source = ParseShader(vs);
+    std::string vs_source= ParseShader(vs);
     std::string fs_source = ParseShader(fs);
     
     bool vs_valid = CompileShader(GL_VERTEX_SHADER, vs_source, vs_id);
