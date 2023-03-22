@@ -17,7 +17,7 @@ private:
 public: 
 	SceneObject(); // Empty Scene Object
 
-	SceneObject(std::vector<float>& vertexes, std::vector<unsigned int> indexes);
+	SceneObject(std::vector<float>* vertexes, std::vector<unsigned int>* indexes);
 	SceneObject(std::string obj_file);
 
 	void Bind() const;

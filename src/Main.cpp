@@ -84,7 +84,7 @@ int main(void)
 
     PRINT_LOG(glGetString(GL_VERSION)); // Prints Opengl version
 
-    std::vector<float> positions = {
+    std::vector<float>* positions = new std::vector<float>{
 
         // Front face
         -0.5f, -0.5f, 0.5f,   // 0 Bot Left
@@ -100,7 +100,7 @@ int main(void)
     };
 
     // Creating index buffer
-    std::vector<unsigned int> indices =
+    std::vector<unsigned int>* indices = new std::vector<unsigned int>
     {
         // front face
         0, 1, 2,
@@ -141,7 +141,7 @@ int main(void)
     unsigned int size_x = square;
     unsigned int size_z = square;
 
-    std::vector<float> map_positions{};
+    std::vector<float>* map_positions = new std::vector<float>{};
 
     float half_x = size_x * 0.5f;
     float half_z = size_z * 0.5f;
@@ -150,14 +150,14 @@ int main(void)
     {
         for (size_t x = 0; x < size_x; x++)
         {
-            map_positions.push_back(x - half_x);
-            map_positions.push_back(0.0f);
-            map_positions.push_back(z - half_z);
+            map_positions->push_back(x - half_x);
+            map_positions->push_back(0.0f);
+            map_positions->push_back(z - half_z);
         }
     }
     
 
-    std::vector<unsigned int> map_ebo{};
+    std::vector<unsigned int>* map_ebo = new std::vector<unsigned int>{};
 
     for (unsigned int z = 0; z < size_z - 1; z++)
     {
@@ -165,15 +165,15 @@ int main(void)
         {
             //// A rectangle formed by 2 triangles
             // Triangle 1
-            map_ebo.push_back(x + z * size_z);// P0
-            map_ebo.push_back(x + z * size_z + 1); // P1
-            map_ebo.push_back(x + z * size_z + 1 + size_z); // P2
+            map_ebo->push_back(x + z * size_z);// P0
+            map_ebo->push_back(x + z * size_z + 1); // P1
+            map_ebo->push_back(x + z * size_z + 1 + size_z); // P2
 
             // Triangle 2
-            map_ebo.push_back(x + z * size_z); // P0
-            map_ebo.push_back(x + z * size_z + 1 + size_z); // P1
-            map_ebo.push_back(x + z * size_z + size_z); // P2
-        }
+            map_ebo->push_back(x + z * size_z); // P0
+            map_ebo->push_back(x + z * size_z + 1 + size_z); // P1
+            map_ebo->push_back(x + z * size_z + size_z); // P2
+        }          
     }
 
     SceneObject map(map_positions, map_ebo);
