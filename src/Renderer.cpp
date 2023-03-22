@@ -55,13 +55,11 @@ void WindowSizeCallback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void Renderer::Draw(const VertexArray& vao, const ElementBuffer& ebo, const ShaderProgram& shader)
+void Renderer::Draw(const SceneObject& obj)
 {
-    vao.Bind();
-    shader.Bind();
+    obj.Bind();
 
-    glDrawElements(GL_TRIANGLES, ebo.GetCount(), GL_UNSIGNED_INT, nullptr); //Draws with index buffer
-
+    glDrawElements(GL_TRIANGLES, obj.GetCount(), GL_UNSIGNED_INT, nullptr); //Draws with index buffer
 }
 
 void Renderer::Clear() const

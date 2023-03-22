@@ -7,23 +7,23 @@
 
 #include <string>
 
-#include "GLObject.h"
-#include "IBinder.h"
 #include "Utils.h"
 
 
 
-class ShaderProgram : public IBinder, GLObject
+class ShaderProgram 
 {
 private:
+	unsigned int id;
+
 	int* vs_id = nullptr;
 	int* fs_id = nullptr;
 public:
 	ShaderProgram();
 	~ShaderProgram();
 
-	void Bind() const override;
-	void Unbind() const override;
+	void Bind() const;
+	void Unbind() const;
 
 	void Attach(GLenum type, const std::string& file_path);
 	void LinkAndValidate();

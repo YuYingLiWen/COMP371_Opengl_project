@@ -3,14 +3,11 @@
 #include <GLEW/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "VertexArray.h"
-#include "ElementBuffer.h"
-#include "ShaderProgram.h"
-#include "VertexBuffer.h"
 
 #include "Utils.h"
 
-
+#include "ShaderProgram.h"
+#include "SceneObject.h"
 
 void APIENTRY glDebugOutput(GLenum source,
     GLenum type,
@@ -30,6 +27,6 @@ void WindowSizeCallback(GLFWwindow* window, int width, int height);
 class Renderer
 {
 public:
-    void Draw(const VertexArray& vao, const ElementBuffer& ebo, const ShaderProgram& shader);
+    void Draw(const SceneObject& obj);
     void Clear() const;
 };

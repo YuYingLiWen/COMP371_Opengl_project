@@ -13,6 +13,10 @@
 #include "AppTime.h"
 
 #include "Camera.h"
+#include "SceneObject.h"
+#include <vector>
+#include <array>
+//#include "assimp/import"
 
 namespace AppTime { extern void UpdateTime(); }
 
@@ -122,17 +126,64 @@ int main(void)
         7,4,0
     };
 
-    VertexArray vao;
-    VertexBuffer vbo(positions, sizeof(positions), GL_STATIC_DRAW);
-    ElementBuffer ebo(indices, sizeof(indices));
-    vao.SetLayout(0, 3, GL_FLOAT, 3);
+    SceneObject cube1(positions, sizeof(positions), indices, sizeof(indices));
+    cube1.SetLayout(0, 3, GL_FLOAT, 3);
+    cube1.Unbind();
+
+    SceneObject cube2(positions, sizeof(positions), indices, sizeof(indices));
+    cube2.SetLayout(0, 3, GL_FLOAT, 3);
+    cube2.Unbind();
+#define square 2
+    //// Perlin noise map
+    unsigned int size_x = square;
+    unsigned int size_z = square;
+
+    float map_positions[square * square * 3];
+
+    float half_x = size_x * 0.5f;
+    float half_z = size_z * 0.5f;
+
+    unsigned int counter = 0;
+
+    for (size_t z = 0; z < size_z; z++)
+    {
+        for (size_t x = 0; x < size_x; x++)
+        {
+            map_positions[counter + 0] = x;// -half_x;       // -half_x; //x
+            map_positions[counter + 1] = 0.0f;    // -half_y; //y
+            map_positions[counter + 2] = z;// -half_z;                   //z
+
+            counter += 3;
+        }
+    }
+
+    unsigned int map_ebo[1 * 6]; // 6 because, 3 to form a triangle, 6 to form a rectangle
+    unsigned int ebo_counter = 0;
+
+    for (size_t z = 0; z < size_z - 1; z++)
+    {
+        for (size_t x = 0; x < size_x - 1; x++)
+        {
+            // Triangle 1
+            map_ebo[ebo_counter + 0] = x + z; // P0
+            map_ebo[ebo_counter + 1] = x + z + 1; // P1
+            map_ebo[ebo_counter + 2] = x + z + 1 + size_z; // P2
+
+            // Triangle 2
+            map_ebo[ebo_counter + 3] = x + z; // P0
+            map_ebo[ebo_counter + 4] = x + z + 1 + size_z; // P1
+            map_ebo[ebo_counter + 5] = x + z + size_z; // P2
+
+            ebo_counter += 6;
+        }
+    }
+    
+    SceneObject map(map_positions, sizeof(map_positions), map_ebo, sizeof(map_ebo));
+    map.SetLayout(0, 3, GL_FLOAT, 3);
 
 
-    VertexArray vao2;
-    VertexBuffer vbo2(positions, sizeof(positions), GL_STATIC_DRAW);
-    ElementBuffer ebo2(indices, sizeof(indices));
-    vao.SetLayout(0, 3, GL_FLOAT, 3);
 
+    //End perlin noise map
     ShaderProgram shader_program;
     try 
     {
@@ -149,15 +200,21 @@ int main(void)
     
     shader_program.LinkAndValidate();
 
-    vao.Unbind();
-    shader_program.Unbind();
-    vbo.Unbind();
-    ebo.Unbind();
-
     float r = 0.0f;
     float increment = 0.1f;
 
     Renderer renderer;
+
+    glm::mat4 model = glm::mat4(1.0f);
+
+    glm::mat4 model2 = glm::mat4(1.0f);
+    model2 = glm::translate(model2, glm::vec3(5.0f, 0.0f, 0.0f));
+
+    glm::mat4 model3 = glm::mat4(1.0f);
+    model3 = glm::translate(model3, glm::vec3(-5.0f, 0.0f, 0.0f));
+
+    glm::mat4 projection = camera.GetProjection();
+    glm::mat4 view;
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -171,26 +228,12 @@ int main(void)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 460");
 
-    // Force the camera to be a the following settings
-    //view = glm::rotate(view, glm::radians(25.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-
-    glm::mat4 model = glm::mat4(1.0f);
-    
-
     // ImGui state
     bool show_demo_window = false;
-
-    auto pair = std::make_pair("asdf", &show_demo_window);
 
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    glm::mat4 model2 = glm::mat4(1.0f);
-    model2 = glm::translate(model2, glm::vec3(5.0f, 0.0f, 0.0f));
-
-    glm::mat4 projection = camera.GetProjection();
-    glm::mat4 view;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -202,37 +245,38 @@ int main(void)
 
         view = camera.GetView();
 
+        shader_program.Bind();
+
         /* Render here */
-        renderer.Draw(vao, ebo, shader_program);
-        
-
-        //model = glm::rotate(model, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
+        model = glm::rotate(model, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         shader_program.SetUniformValueMat4f("u_projection", projection);
         shader_program.SetUniformValueMat4f("u_model", model);
         shader_program.SetUniformValueMat4f("u_view", view);
-        shader_program.SetUniformValue4f("u_color", r, 1.0f, 0.0f, 0.0f);
+        shader_program.SetUniformValue4f("u_color", 1.0f, 0.0f, 0.0f, 1.0f);
+        renderer.Draw(cube1);
+        cube1.Unbind();
 
-
-        renderer.Draw(vao2, ebo2, shader_program);
         model2 = glm::translate(model2, glm::vec3(0.0f, glm::sin(glfwGetTime()) * AppTime::DeltaTime(), 0.0f));
-        //model2 = glm::rotate(model2, glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model2 = glm::rotate(model2, glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        shader_program.SetUniformValueMat4f("u_projection", projection);
+        shader_program.SetUniformValueMat4f("u_view", view);
+        shader_program.SetUniformValueMat4f("u_model", model2);
+        shader_program.SetUniformValue4f("u_color", 0.0f, 1.0f, 0.0f, 1.0f);
+        renderer.Draw(cube2);
 
+        cube2.Unbind();
 
         shader_program.SetUniformValueMat4f("u_projection", projection);
         shader_program.SetUniformValueMat4f("u_view", view);
-
-        shader_program.SetUniformValueMat4f("u_model", model2);
-
-        shader_program.SetUniformValue4f("u_color", r, 0.0f, 1.0f, 0.0f);
-
+        shader_program.SetUniformValueMat4f("u_model", model3);
+        shader_program.SetUniformValue4f("u_color", 0.0f, 0.0f, 1.0f, 1.0f);
+        renderer.Draw(map);
+        map.Unbind();
 
         if (r > 1.0f || r < 0.0f) increment = -increment;
 
         r += increment;
         
-        shader_program.Unbind();
-
 
         // Render ImGui on top of everything
         // Start the Dear ImGui frame
