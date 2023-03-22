@@ -14,10 +14,9 @@
 class ShaderProgram 
 {
 private:
-	unsigned int id;
-
-	int* vs_id = nullptr;
-	int* fs_id = nullptr;
+	unsigned int program_id = -1;
+	unsigned int vs_id = -1, fs_id = -1;
+	bool valid = false;
 public:
 	ShaderProgram();
 	~ShaderProgram();
@@ -25,13 +24,14 @@ public:
 	void Bind() const;
 	void Unbind() const;
 
-	void Attach(GLenum type, const std::string& file_path);
-	void LinkAndValidate();
+	void Attach(const std::string& vs, const std::string& fs);
 
 	void SetUniformValue4f(const std::string& name, float v0, float v1, float v2, float v3);
 	void SetUniformValueMat4f(const std::string& name, const glm::mat4& matrix);
-
+	bool IsValid() const;
 private:
+	void LinkAndValidate();
+
 	bool GetUniformLocation(const std::string& name, int& location);
 
     static std::string ParseShader(const std::string& file_path);

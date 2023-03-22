@@ -4,25 +4,19 @@
 #include <sstream>
 #include <memory>
 
-#define SHADER_TYPE(x) (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader"
-
-
 ShaderProgram::ShaderProgram()
 {
-	id = glCreateProgram();
+	program_id = glCreateProgram();
 }
 
 ShaderProgram::~ShaderProgram()
 {
-    delete fs_id;
-    delete vs_id;
-
-	glDeleteProgram(id);
+	glDeleteProgram(program_id);
 }
 
 void ShaderProgram::Bind() const
 {
-	glUseProgram(id);
+	glUseProgram(program_id);
 }
 
 void ShaderProgram::Unbind() const
@@ -30,60 +24,59 @@ void ShaderProgram::Unbind() const
 	glUseProgram(0);
 }
 
-void ShaderProgram::Attach(GLenum type, const std::string& file_path)
+void ShaderProgram::Attach(const std::string& vs, const std::string& fs)
 {
-    unsigned int shader_id;
+    std::string vs_source = ParseShader(vs);
+    std::string fs_source = ParseShader(fs);
+    
+    bool vs_valid = CompileShader(GL_VERTEX_SHADER, vs_source, vs_id);
+    bool fs_valid = CompileShader(GL_FRAGMENT_SHADER, fs_source, fs_id);
+    
+    PRINT_LOG("Vertex Shader: "   << (vs_valid ? "succesfully compiled." : "failed to compile."));
+    PRINT_LOG("Fragment Shader: " << (fs_valid ? "succesfully compiled." : "failed to compile."));
 
-    std::string shader_source = ParseShader(file_path);
-    bool valid_shader = false;
-
-    if (type == GL_VERTEX_SHADER) 
+    if (!(vs_valid && fs_valid)) 
     {
-        if (valid_shader = CompileShader(GL_VERTEX_SHADER, shader_source, shader_id)) 
-            vs_id = new int(shader_id);
-    }
-    else if (type == GL_FRAGMENT_SHADER)
-    {
-        if (valid_shader = CompileShader(GL_FRAGMENT_SHADER, shader_source, shader_id)) 
-            fs_id = new int(shader_id);
+        valid = false;
+        return;
     }
 
-     PRINT_LOG(SHADER_TYPE(type) << " " << (valid_shader ? "succesfully compiled." : "failed to compile."));
+    glAttachShader(program_id, vs_id);
+    glAttachShader(program_id, fs_id);
 
-
-    if (!valid_shader) return;
-
-    glAttachShader(id, shader_id);
+    LinkAndValidate();
 }
 
 void ShaderProgram::LinkAndValidate()
 {
-    glLinkProgram(id);
-    glValidateProgram(id);
+    glLinkProgram(program_id);
+    glValidateProgram(program_id);
 
     int validation;
-    glGetProgramiv(id, GL_VALIDATE_STATUS, &validation);
+    glGetProgramiv(program_id, GL_VALIDATE_STATUS, &validation);
 
-    glDetachShader(id, *vs_id);
-    glDetachShader(id, *fs_id);
+    glDetachShader(program_id, vs_id);
+    glDetachShader(program_id, fs_id);
 
     if (validation == GL_FALSE)
     {
+        valid = false;
         int length{};
         auto message = std::make_unique<char>();
-        glGetShaderInfoLog(id, length, &length, message.get());
+        glGetShaderInfoLog(program_id, length, &length, message.get());
         PRINT_LOG("Shader program failed validation.");
         PRINT_LOG(message);
     }
     else
     {
         PRINT_LOG("Shader program passed validation.");
+        valid = true;
     }
 }
 
 void ShaderProgram::SetUniformValue4f(const std::string& name, float v0, float v1, float v2, float v3)
 {
-    int location = glGetUniformLocation(id, name.c_str());
+    int location = glGetUniformLocation(program_id, name.c_str());
 
     if (GetUniformLocation(name, location))
     {
@@ -101,9 +94,14 @@ void ShaderProgram::SetUniformValueMat4f(const std::string& name, const glm::mat
     }
 }
 
+bool ShaderProgram::IsValid() const
+{
+    return valid;
+}
+
 bool ShaderProgram::GetUniformLocation(const std::string& name, int& location)
 {
-    int loc = glGetUniformLocation(id, name.c_str());
+    int loc = glGetUniformLocation(program_id, name.c_str());
 
     if (loc < 0)
     {

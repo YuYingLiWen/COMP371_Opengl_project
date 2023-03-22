@@ -183,20 +183,8 @@ int main(void)
 
     //End perlin noise map
     ShaderProgram shader_program;
-    try 
-    {
-        shader_program.Attach(GL_FRAGMENT_SHADER, "res\\shaders\\fragment.shader");
-        shader_program.Attach(GL_VERTEX_SHADER, "res\\shaders\\vertex.shader");
-    }
-    catch (std::exception e)
-    {
-        PRINT_LOG(e.what());
-        PRINT_LOG("Press Any Key to exit.");
-        std::cin.get();
-        return -1;
-    }
-    
-    shader_program.LinkAndValidate();
+    shader_program.Attach("res\\shaders\\vertex.shader","res\\shaders\\fragment.shader");
+
 
     Renderer renderer;
 
