@@ -17,10 +17,18 @@ static float rot_speed = 10.0f;
 
 static float scroll_speed = 100.0f;
 
-extern Camera camera;
+static glm::dvec2 mouse_pos;
 
+
+
+// Camera
+extern Camera camera;
 #define DEFAULT_CAMERA_ROTATION glm::vec3(35.0f, 45.0f, 0.0f)
 #define DEFAULT_CAMERA_POSITION glm::vec3(0.0f, 0.0f, 10.0f)
+static float far_plane = 500.0f;
+
+
+
 
 Camera::Camera()
     :
@@ -79,7 +87,7 @@ glm::mat4 Camera::GetView()
 
 glm::mat4 Camera::GetProjection() const
 {
-	return glm::perspective(glm::radians(fov), aspect_ratio, 0.1f, 100.0f);
+	return glm::perspective(glm::radians(fov), aspect_ratio, 0.1f, far_plane);
 }
 
 glm::mat4 Camera::LookAt(glm::vec3 lookat_pos) const
@@ -116,6 +124,9 @@ void Camera::ResetCamera(Camera& camera)
 
 void Camera::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+
+
+
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
@@ -157,14 +168,17 @@ float& Camera::GetKeySpeed()
 }
 
 
-void Camera::UserInputs()
+void Camera::UserInputs(GLFWwindow* window)
 {
+    glfwGetCursorPos(window, &mouse_pos.x, &mouse_pos.y);
+    PRINT_LOG("Mouse Position (x:" << mouse_pos.x << ", y:" << mouse_pos.y << ")");
+
     if (W_IS_HELD) this->Translate(Up() * key_speed * AppTime::DeltaTime());
     if (A_IS_HELD) this->Translate(Right() * key_speed * AppTime::DeltaTime());
     if (S_IS_HELD) this->Translate(-Up() * key_speed * AppTime::DeltaTime());
     if (D_IS_HELD) this->Translate(-Right() * key_speed * AppTime::DeltaTime());
 
-    if (Q_IS_HELD) camera.Rotate(-rot_degree * rot_speed * AppTime::DeltaTime(), glm::vec3(0.0f, 1.0f, 0.0f));
-    if (E_IS_HELD) camera.Rotate(rot_degree * rot_speed * AppTime::DeltaTime(), glm::vec3(0.0f, 1.0f, 0.0f));
+    if (Q_IS_HELD) camera.Rotate(rot_degree * rot_speed * AppTime::DeltaTime(), glm::vec3(0.0f, 1.0f, 0.0f));
+    if (E_IS_HELD) camera.Rotate(-rot_degree * rot_speed * AppTime::DeltaTime(), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 

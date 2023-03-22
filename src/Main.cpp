@@ -16,6 +16,7 @@
 #include "SceneObject.h"
 #include "ShaderProgram.h"
 
+
 //#include "assimp/import"
 
 namespace AppTime { extern void UpdateTime(); }
@@ -83,56 +84,56 @@ int main(void)
 
     PRINT_LOG(glGetString(GL_VERSION)); // Prints Opengl version
 
-    //float positions[] = {
+    std::vector<float> positions = {
 
-    //    // Front face
-    //    -0.5f, -0.5f, 0.5f,   // 0 Bot Left
-    //     0.5f, -0.5f, 0.5f,   // 1 Bot Right
-    //     0.5f,  0.5f, 0.5f,   // 2 Top Right
-    //    -0.5f,  0.5f, 0.5f,    // 3 Top Left
+        // Front face
+        -0.5f, -0.5f, 0.5f,   // 0 Bot Left
+         0.5f, -0.5f, 0.5f,   // 1 Bot Right
+         0.5f,  0.5f, 0.5f,   // 2 Top Right
+        -0.5f,  0.5f, 0.5f,    // 3 Top Left
 
-    //    // Back face
-    //    -0.5f, -0.5f, -0.5f,   // 4 Bot Left
-    //     0.5f, -0.5f, -0.5f,   // 5 Bot Right
-    //     0.5f,  0.5f, -0.5f,   // 6 Top Right
-    //    -0.5f,  0.5f, -0.5f    // 7 Top Left
-    //};
+        // Back face
+        -0.5f, -0.5f, -0.5f,   // 4 Bot Left
+         0.5f, -0.5f, -0.5f,   // 5 Bot Right
+         0.5f,  0.5f, -0.5f,   // 6 Top Right
+        -0.5f,  0.5f, -0.5f    // 7 Top Left
+    };
 
-    //// Creating index buffer
-    //unsigned int indices[]=
-    //{
-    //    // front face
-    //    0, 1, 2,
-    //    0, 2, 3,
+    // Creating index buffer
+    std::vector<unsigned int> indices =
+    {
+        // front face
+        0, 1, 2,
+        0, 2, 3,
 
-    //    //Back face
-    //    4,5,6,
-    //    4,6,7,
+        //Back face
+        4,5,6,
+        4,6,7,
 
-    //    // Top face
-    //    3,2,6,
-    //    3,6,7,
+        // Top face
+        3,2,6,
+        3,6,7,
 
-    //    // Bottom face
-    //    0,1,5,
-    //    0,5,4,
+        // Bottom face
+        0,1,5,
+        0,5,4,
 
-    //    //Left face
-    //    1,5,6,
-    //    1,6,2,
+        //Left face
+        1,5,6,
+        1,6,2,
 
-    //    //Right face
-    //    4,0,3,
-    //    4,3,7
-    //};
+        //Right face
+        4,0,3,
+        4,3,7
+    };
 
-    //SceneObject cube1(positions, sizeof(positions), indices, sizeof(indices));
-    //cube1.SetLayout(0, 3, GL_FLOAT, 3);
-    //cube1.Unbind();
+    SceneObject cube1(positions, indices);
+    cube1.SetLayout(0, 3, GL_FLOAT, 3);
+    cube1.Unbind();
 
-    //SceneObject cube2(positions, sizeof(positions), indices, sizeof(indices));
-    //cube2.SetLayout(0, 3, GL_FLOAT, 3);
-    //cube2.Unbind();
+    SceneObject cube2(positions, indices);
+    cube2.SetLayout(0, 3, GL_FLOAT, 3);
+    cube2.Unbind();
 
 
     const int square = 100;
@@ -140,69 +141,42 @@ int main(void)
     unsigned int size_x = square;
     unsigned int size_z = square;
 
-    unsigned int map_position_size = square * square * 3;
-    float map_positions[square * square * 3];
+    std::vector<float> map_positions{};
 
     float half_x = size_x * 0.5f;
     float half_z = size_z * 0.5f;
-
-    unsigned int data_block = 0;
-    unsigned int block_size = 3;
 
     for (size_t z = 0; z < size_z; z++)
     {
         for (size_t x = 0; x < size_x; x++)
         {
-            map_positions[data_block * block_size + 0] = x -half_x;
-            map_positions[data_block * block_size + 1] = 0.0f;
-            map_positions[data_block * block_size + 2] = z -half_z;
-
-            data_block++;
+            map_positions.push_back(x - half_x);
+            map_positions.push_back(0.0f);
+            map_positions.push_back(z - half_z);
         }
     }
     
-    const unsigned int map_ebo_size = (square - 1) * (square - 1) * 6;
-    unsigned int map_ebo[map_ebo_size]{};// 6 because, 3 to form a triangle, 6 to form a rectangle
-    data_block = 0;
-    block_size = 6;
+
+    std::vector<unsigned int> map_ebo{};
 
     for (unsigned int z = 0; z < size_z - 1; z++)
     {
         for (unsigned int x = 0; x < size_x - 1; x++)
         {
+            //// A rectangle formed by 2 triangles
             // Triangle 1
-            map_ebo[data_block * block_size + 0] = x + z * size_z; // P0
-            map_ebo[data_block * block_size + 1] = x + z * size_z + 1; // P1
-            map_ebo[data_block * block_size + 2] = x + z * size_z + 1 + size_z; // P2
+            map_ebo.push_back(x + z * size_z);// P0
+            map_ebo.push_back(x + z * size_z + 1); // P1
+            map_ebo.push_back(x + z * size_z + 1 + size_z); // P2
 
             // Triangle 2
-            map_ebo[data_block * block_size + 3] = x + z * size_z; // P0
-            map_ebo[data_block * block_size + 4] = x + z * size_z + 1 + size_z; // P1
-            map_ebo[data_block * block_size + 5] = x + z * size_z + size_z; // P2
-
-            data_block++;
+            map_ebo.push_back(x + z * size_z); // P0
+            map_ebo.push_back(x + z * size_z + 1 + size_z); // P1
+            map_ebo.push_back(x + z * size_z + size_z); // P2
         }
     }
-    PRINT_LOG(map_position_size);
-    PRINT_LOG(map_ebo_size);
 
-    //unsigned int vao;
-    //glGenVertexArrays(1, &vao);
-    //glBindVertexArray(vao);
-    //glEnableVertexAttribArray(0);
-    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0 * sizeof(float), 0);
-    //
-    //unsigned int vbo;
-    //glGenBuffers(1, &vbo);
-    //glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    //glBufferData(GL_ARRAY_BUFFER, 27 * sizeof(float), map_positions, GL_STATIC_DRAW);
-
-    //unsigned int ebo;
-    //glGenBuffers(1, &ebo);
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, 24 * sizeof(unsigned int), map_ebo, GL_STATIC_DRAW);
-
-    SceneObject map(map_positions, map_position_size, map_ebo, map_ebo_size);
+    SceneObject map(map_positions, map_ebo);
     map.SetLayout(0, 3, GL_FLOAT, 0);
 
 
@@ -262,36 +236,29 @@ int main(void)
         AppTime::UpdateTime();
 
         renderer.Clear();
-        camera.UserInputs();
+        camera.UserInputs(window);
 
         view = camera.GetView();
 
         shader_program.Bind();
 
         /* Render here */
-        //model = glm::rotate(model, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        //shader_program.SetUniformValueMat4f("u_projection", projection);
-        //shader_program.SetUniformValueMat4f("u_model", model);
-        //shader_program.SetUniformValueMat4f("u_view", view);
-        //shader_program.SetUniformValue4f("u_color", 1.0f, 0.0f, 0.0f, 1.0f);
-        //renderer.Draw(cube1);
-        //cube1.Unbind();
+        model = glm::rotate(model, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        shader_program.SetUniformValueMat4f("u_projection", projection);
+        shader_program.SetUniformValueMat4f("u_model", model);
+        shader_program.SetUniformValueMat4f("u_view", view);
+        shader_program.SetUniformValue4f("u_color", 1.0f, 0.0f, 0.0f, 1.0f);
+        renderer.Draw(cube1);
+        cube1.Unbind();
 
-        //model2 = glm::translate(model2, glm::vec3(0.0f, glm::sin(glfwGetTime()) * AppTime::DeltaTime(), 0.0f));
-        //model2 = glm::rotate(model2, glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        //shader_program.SetUniformValueMat4f("u_projection", projection);
-        //shader_program.SetUniformValueMat4f("u_view", view);
-        //shader_program.SetUniformValueMat4f("u_model", model2);
-        //shader_program.SetUniformValue4f("u_color", 0.0f, 1.0f, 0.0f, 1.0f);
-        //renderer.Draw(cube2);
-        
-        //unsigned int data[36];
-        //glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 36 * sizeof(unsigned int), data);
-        //for (int i = 0; i < 36; i++)
-        //{
-        //    PRINT_LOG(data[i]);
-        //}
-        //cube2.Unbind();
+        model2 = glm::translate(model2, glm::vec3(0.0f, glm::sin(glfwGetTime()) * AppTime::DeltaTime(), 0.0f));
+        model2 = glm::rotate(model2, glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        shader_program.SetUniformValueMat4f("u_projection", projection);
+        shader_program.SetUniformValueMat4f("u_view", view);
+        shader_program.SetUniformValueMat4f("u_model", model2);
+        shader_program.SetUniformValue4f("u_color", 0.0f, 1.0f, 0.0f, 1.0f);
+        renderer.Draw(cube2);
+        cube2.Unbind();
 
         shader_program.SetUniformValueMat4f("u_projection", projection);
         shader_program.SetUniformValueMat4f("u_view", view);

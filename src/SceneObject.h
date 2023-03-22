@@ -1,10 +1,11 @@
 #pragma once
 
+
+#include <vector>
 #include <string>
 
 #include <GLEW/glew.h>
 #include <GLFW/glfw3.h>
-
 
 
 class SceneObject
@@ -15,7 +16,8 @@ private:
 
 public: 
 	SceneObject(); // Empty Scene Object
-	SceneObject(float* vertexes, unsigned int vbo_size, unsigned int* indexes, unsigned int ebo_size);
+
+	SceneObject(std::vector<float>& vertexes, std::vector<unsigned int> indexes);
 	SceneObject(std::string obj_file);
 
 	void Bind() const;

@@ -4,6 +4,8 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include "Utils.h"
+
 class Camera
 {
 public:
@@ -31,7 +33,7 @@ public:
 	glm::mat4 LookAt(glm::vec3 postion) const;
 	float& GetKeySpeed();
 
-	void UserInputs();
+	void UserInputs(GLFWwindow* window);
 
 	static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 	static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
