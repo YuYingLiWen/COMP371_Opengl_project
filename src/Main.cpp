@@ -1,4 +1,5 @@
 
+#include <memory>
 #include <cstdio>
 #include <unordered_set>
 
@@ -84,8 +85,9 @@ int main(void)
 
     PRINT_LOG(glGetString(GL_VERSION)); // Prints Opengl version
 
-    std::vector<float>* positions = new std::vector<float>{
-
+    auto positions = std::make_unique<std::vector<float>>(); 
+    
+    *positions = std::vector<float>{
         // Front face
         -0.5f, -0.5f, 0.5f,   // 0 Bot Left
          0.5f, -0.5f, 0.5f,   // 1 Bot Right
@@ -100,8 +102,9 @@ int main(void)
     };
 
     // Creating index buffer
-    std::vector<unsigned int>* indices = new std::vector<unsigned int>
-    {
+    auto indices = std::make_unique<std::vector<unsigned int>>();
+    
+    *indices = std::vector<unsigned int>{
         // front face
         0, 1, 2,
         0, 2, 3,
@@ -127,11 +130,11 @@ int main(void)
         4,3,7
     };
 
-    SceneObject cube1(positions, indices);
+    SceneObject cube1(positions.get(), indices.get());
     cube1.SetLayout(0, 3, GL_FLOAT, 3);
     cube1.Unbind();
 
-    SceneObject cube2(positions, indices);
+    SceneObject cube2(positions.get(), indices.get());
     cube2.SetLayout(0, 3, GL_FLOAT, 3);
     cube2.Unbind();
 
@@ -141,7 +144,7 @@ int main(void)
     unsigned int size_x = square;
     unsigned int size_z = square;
 
-    std::vector<float>* map_positions = new std::vector<float>{};
+    auto map_positions = std::make_unique<std::vector<float>>();
 
     float half_x = size_x * 0.5f;
     float half_z = size_z * 0.5f;
@@ -157,7 +160,7 @@ int main(void)
     }
     
 
-    std::vector<unsigned int>* map_ebo = new std::vector<unsigned int>{};
+    auto map_ebo = std::make_unique<std::vector<unsigned int>>();
 
     for (unsigned int z = 0; z < size_z - 1; z++)
     {
@@ -176,15 +179,17 @@ int main(void)
         }          
     }
 
-    SceneObject map(map_positions, map_ebo);
+    SceneObject map(map_positions.get(), map_ebo.get());
     map.SetLayout(0, 3, GL_FLOAT, 0);
 
 
 
     //End perlin noise map
-    ShaderProgram shader_program;
-    shader_program.Attach("res\\shaders\\vertex.shader","res\\shaders\\fragment.shader");
+    ShaderProgram simple_shader;
+    simple_shader.Attach("res\\shaders\\vertex.shader","res\\shaders\\fragment.shader");
 
+    ShaderProgram terrain_shader;
+    terrain_shader.Attach("res\\shaders\\terrain_vertex.shader", "res\\shaders\\terrain_fragment.shader");
 
     Renderer renderer;
 
@@ -228,32 +233,29 @@ int main(void)
 
         view = camera.GetView();
 
-        shader_program.Bind();
+        simple_shader.Bind();
 
         /* Render here */
         model = glm::rotate(model, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        shader_program.SetUniformValueMat4f("u_projection", projection);
-        shader_program.SetUniformValueMat4f("u_model", model);
-        shader_program.SetUniformValueMat4f("u_view", view);
-        shader_program.SetUniformValue4f("u_color", 1.0f, 0.0f, 0.0f, 1.0f);
+        simple_shader.SetUniformValueMat4f("u_projection", projection);
+        simple_shader.SetUniformValueMat4f("u_model", model);
+        simple_shader.SetUniformValueMat4f("u_view", view);
+        simple_shader.SetUniformValue4f("u_color", 1.0f, 0.0f, 0.0f, 1.0f);
         renderer.Draw(cube1);
-        cube1.Unbind();
 
         model2 = glm::translate(model2, glm::vec3(0.0f, glm::sin(glfwGetTime()) * AppTime::DeltaTime(), 0.0f));
         model2 = glm::rotate(model2, glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        shader_program.SetUniformValueMat4f("u_projection", projection);
-        shader_program.SetUniformValueMat4f("u_view", view);
-        shader_program.SetUniformValueMat4f("u_model", model2);
-        shader_program.SetUniformValue4f("u_color", 0.0f, 1.0f, 0.0f, 1.0f);
+        simple_shader.SetUniformValueMat4f("u_projection", projection);
+        simple_shader.SetUniformValueMat4f("u_view", view);
+        simple_shader.SetUniformValueMat4f("u_model", model2);
+        simple_shader.SetUniformValue4f("u_color", 0.0f, 1.0f, 0.0f, 1.0f);
         renderer.Draw(cube2);
-        cube2.Unbind();
 
-        shader_program.SetUniformValueMat4f("u_projection", projection);
-        shader_program.SetUniformValueMat4f("u_view", view);
-        shader_program.SetUniformValueMat4f("u_model", model3);
-        shader_program.SetUniformValue4f("u_color", 0.0f, 0.0f, 1.0f, 1.0f);
+        simple_shader.SetUniformValueMat4f("u_projection", projection);
+        simple_shader.SetUniformValueMat4f("u_view", view);
+        simple_shader.SetUniformValueMat4f("u_model", model3);
+        simple_shader.SetUniformValue4f("u_color", 0.0f, 0.0f, 1.0f, 1.0f);
         renderer.Draw(map);
-        map.Unbind();
 
         
         // Render ImGui on top of everything

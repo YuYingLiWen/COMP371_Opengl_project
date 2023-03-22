@@ -134,22 +134,22 @@ std::string ShaderProgram::ParseShader(const std::string& file_path)
     }
 }
 
-bool ShaderProgram::CompileShader(GLenum type, const std::string& source, unsigned int& id)
+bool ShaderProgram::CompileShader(GLenum type, const std::string& source, unsigned int& shader_id)
 {
-    id = glCreateShader(type);
+    shader_id = glCreateShader(type);
     const char* src = source.c_str();
-    glShaderSource(id, 1, &src, nullptr);
-    glCompileShader(id);
+    glShaderSource(shader_id, 1, &src, nullptr);
+    glCompileShader(shader_id);
 
     int result;
-    glGetShaderiv(id, GL_COMPILE_STATUS, &result);
+    glGetShaderiv(shader_id, GL_COMPILE_STATUS, &result);
 
     if (result == GL_FALSE)
     {
         int length;
-        glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
+        glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &length);
         auto message = std::make_unique<char>();
-        glGetShaderInfoLog(id, length, &length, message.get());
+        glGetShaderInfoLog(shader_id, length, &length, message.get());
         PRINT_LOG("Failed to compile: " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader.");
         PRINT_LOG(message);
 
