@@ -85,6 +85,36 @@ void ShaderProgram::SetUniformValue4f(const std::string& name, float v0, float v
     }
 }
 
+void ShaderProgram::SetUniformValue4f(const std::string& name, glm::vec4 v4)
+{
+    int location = glGetUniformLocation(program_id, name.c_str());
+
+    if (GetUniformLocation(name, location))
+    {
+        glUniform4f(location, v4.x, v4.y, v4.z, v4.w);
+    }
+}
+
+void ShaderProgram::SetUniformValue3f(const std::string& name, float v0, float v1, float v2)
+{
+    int location = glGetUniformLocation(program_id, name.c_str());
+
+    if (GetUniformLocation(name, location))
+    {
+        glUniform3f(location, v0, v1, v2);
+    }
+}
+
+void ShaderProgram::SetUniformValue3f(const std::string& name, glm::vec3 v3)
+{
+    int location = glGetUniformLocation(program_id, name.c_str());
+
+    if (GetUniformLocation(name, location))
+    {
+        glUniform3f(location, v3.x, v3.y, v3.z);
+    }
+}
+
 void ShaderProgram::SetUniformValueMat4f(const std::string& name, const glm::mat4& matrix)
 {
     int location;
@@ -94,6 +124,8 @@ void ShaderProgram::SetUniformValueMat4f(const std::string& name, const glm::mat
        glUniformMatrix4fv(location, 1, GL_FALSE, &matrix[0][0]);
     }
 }
+
+
 
 bool ShaderProgram::IsValid() const
 {
@@ -116,22 +148,20 @@ bool ShaderProgram::GetUniformLocation(const std::string& name, int& location)
 
 std::string ShaderProgram::ParseShader(const std::string& file_path)
 {
+    std::stringstream ss;
+
+    std::fstream stream(file_path);
+
+    if (stream.fail()) throw std::invalid_argument("Fail to open: " + file_path);
+
+    std::string line;
+    while (!stream.eof())
     {
-        std::stringstream ss;
-
-        std::fstream stream(file_path);
-
-        if (stream.fail()) throw std::invalid_argument("Fail to open: " + file_path);
-
-        std::string line;
-        while (!stream.eof())
-        {
-            std::getline(stream, line);
-            ss << line << '\n';
-        }
-
-        return ss.str();
+        std::getline(stream, line);
+        ss << line << '\n';
     }
+
+    return ss.str();
 }
 
 bool ShaderProgram::CompileShader(GLenum type, const std::string& source, unsigned int& shader_id)

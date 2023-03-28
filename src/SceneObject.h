@@ -7,6 +7,8 @@
 #include <GLEW/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 class SceneObject
 {
@@ -18,6 +20,7 @@ public:
 	SceneObject(); // Empty Scene Object
 
 	SceneObject(std::vector<float>* vertexes, std::vector<unsigned int>* indexes);
+	SceneObject(std::vector<glm::vec3>* vertexes, std::vector<unsigned int>* indexes);
 	SceneObject(std::string obj_file);
 
 	void Bind() const;

@@ -17,14 +17,17 @@
 #include "SceneObject.h"
 #include "ShaderProgram.h"
 
+#include "CustomRandom.h"
 
-//#include "assimp/import"
+#include "assimp/Importer.hpp"
+#include "assimp/Exporter.hpp"
+
 
 namespace AppTime { extern void UpdateTime(); }
 
 Camera camera(780, 1280, 65.0f);
 
-
+glm::vec3 dir_light(1.0f, 0.0f, 0.0f);
 
 static void glfwErrorCallback(int error, const char* description)
 {
@@ -139,28 +142,25 @@ int main(void)
     cube2.Unbind();
 
 
-    const int square = 100;
     //// Perlin noise map
-    unsigned int size_x = square;
-    unsigned int size_z = square;
+    unsigned int size_x = 10 + 1;
+    unsigned int size_z = 5 + 1;
 
-    auto map_positions = std::make_unique<std::vector<float>>();
+    auto map_positions = std::make_unique<std::vector<glm::vec3>>();
 
     float half_x = size_x * 0.5f;
     float half_z = size_z * 0.5f;
 
-    for (size_t z = 0; z < size_z; z++)
+    for (size_t z = 0; z < size_z; z++) 
     {
-        for (size_t x = 0; x < size_x; x++)
+        for (size_t x = 0; x < size_x; x++) 
         {
-            map_positions->push_back(x - half_x);
-            map_positions->push_back(0.0f);
-            map_positions->push_back(z - half_z);
+            map_positions->push_back(glm::vec3(x - half_x, 0.0f, z - half_z));
         }
     }
-    
 
     auto map_ebo = std::make_unique<std::vector<unsigned int>>();
+    auto map_normals = std::make_unique<std::vector<glm::vec3>>();
 
     for (unsigned int z = 0; z < size_z - 1; z++)
     {
@@ -168,15 +168,15 @@ int main(void)
         {
             //// A rectangle formed by 2 triangles
             // Triangle 1
-            map_ebo->push_back(x + z * size_z);// P0
-            map_ebo->push_back(x + z * size_z + 1); // P1
-            map_ebo->push_back(x + z * size_z + 1 + size_z); // P2
+            map_ebo->push_back(x + z * size_x);           // P0
+            map_ebo->push_back(x + z * size_x + 1);       // P1
+            map_ebo->push_back(x + (z + 1) * size_x + 1); // P2
 
             // Triangle 2
-            map_ebo->push_back(x + z * size_z); // P0
-            map_ebo->push_back(x + z * size_z + 1 + size_z); // P1
-            map_ebo->push_back(x + z * size_z + size_z); // P2
-        }          
+            map_ebo->push_back(x + z * size_x);           // P0
+            map_ebo->push_back(x + (z + 1) * size_x + 1); // P1
+            map_ebo->push_back(x + (z + 1) * size_x);     // P2
+        }
     }
 
     SceneObject map(map_positions.get(), map_ebo.get());
@@ -251,10 +251,14 @@ int main(void)
         simple_shader.SetUniformValue4f("u_color", 0.0f, 1.0f, 0.0f, 1.0f);
         renderer.Draw(cube2);
 
-        simple_shader.SetUniformValueMat4f("u_projection", projection);
-        simple_shader.SetUniformValueMat4f("u_view", view);
-        simple_shader.SetUniformValueMat4f("u_model", model3);
-        simple_shader.SetUniformValue4f("u_color", 0.0f, 0.0f, 1.0f, 1.0f);
+        terrain_shader.Bind();
+        terrain_shader.SetUniformValueMat4f("u_projection", projection);
+        terrain_shader.SetUniformValueMat4f("u_view", view);
+        terrain_shader.SetUniformValueMat4f("u_model", model3);
+        
+        terrain_shader.SetUniformValue3f("u_dir_light_dir", 0.5f, 0.5f, 0.0f);
+        terrain_shader.SetUniformValue3f("u_normal", 0.0f, 1.0f, 0.0f);
+        terrain_shader.SetUniformValue4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
         renderer.Draw(map);
 
         
