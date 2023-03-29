@@ -9,6 +9,7 @@
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 #include "Renderer.h"
 #include "AppTime.h"
@@ -29,6 +30,7 @@ namespace AppTime { extern void UpdateTime(); }
 Camera camera(780, 1280, 65.0f);
 
 glm::vec3 dir_light(1.0f, 0.0f, 0.0f);
+glm::i32vec2 terrain_dimensions(5, 5);
 
 static void glfwErrorCallback(int error, const char* description)
 {
@@ -145,10 +147,15 @@ int main(void)
 
     //// Perlin noise map
     TerrainGenerator tg;
-    TerrainData data = tg.Generate(10, 5);
-    SceneObject map(data.positions.get(), data.indexes.get(), data.normals.get());
-    map.SetLayout(0, 3, GL_FLOAT, 0);
-    //map.SetLayout(1, 3, GL_FLOAT, 0);
+    TerrainData* data = tg.Generate(terrain_dimensions);
+    SceneObject* map = nullptr;
+    if (data)
+    {
+        map = new SceneObject(data->positions.get(), data->indexes.get(), data->normals.get());
+        map->SetLayout(0, 3, GL_FLOAT, 0);
+        //map.SetLayout(1, 3, GL_FLOAT, 0);
+    }
+
 
 
 
@@ -185,12 +192,13 @@ int main(void)
     ImGui_ImplOpenGL3_Init("#version 460");
 
     // ImGui state
-    bool show_demo_window = false;
+    bool show_demo_window = true;
 
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-
+    glm::vec3 light_dir(1.0f, 0.0f, 0.0f);
+    double d = 2;
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -224,10 +232,10 @@ int main(void)
         terrain_shader.SetUniformValueMat4f("u_view", view);
         terrain_shader.SetUniformValueMat4f("u_model", model3);
         
-        terrain_shader.SetUniformValue3f("u_dir_light_dir", 0.5f, 0.5f, 0.0f);
-        terrain_shader.SetUniformValue3f("u_normal", 0.0f, 1.0f, 0.0f);
+        terrain_shader.SetUniformValue3f("u_dir_light_dir", light_dir);
+        //terrain_shader.SetUniformValue3f("u_normal", 0.0f, 1.0f, 0.0f);
         terrain_shader.SetUniformValue4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
-        renderer.Draw(map);
+        renderer.Draw(*map);
 
         
         // Render ImGui on top of everything
@@ -249,6 +257,24 @@ int main(void)
 
             ImGui::SliderFloat("Keyboard Move Speed", &camera.GetKeySpeed(), 0.0f, 10.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
             ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+            ImGui::InputInt2("Terrain Dimension", glm::value_ptr(terrain_dimensions));
+            if (ImGui::Button("Generate Terrain"))
+            {
+                delete map;
+                delete data;
+
+                data = tg.Generate(terrain_dimensions);
+
+                if (data)
+                {
+                    map = new SceneObject(data->positions.get(), data->indexes.get(), data->normals.get());
+                    map->SetLayout(0, 3, GL_FLOAT, 0);
+                }
+            }
+            ImGui::InputDouble("Input Double", &d);
+
+            ImGui::DragFloat3("Directional Light", glm::value_ptr(light_dir), 0.01f, -1.0f, 1.0f);
 
             if (ImGui::Button("Reset Camera"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
                 Camera::ResetCamera(camera);

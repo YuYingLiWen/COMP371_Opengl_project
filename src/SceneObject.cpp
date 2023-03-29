@@ -4,6 +4,15 @@ SceneObject::SceneObject() // Empty Object
 {
 }
 
+SceneObject::~SceneObject()
+{
+    glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &vbo2);
+    glDeleteBuffers(1, &ebo);
+
+    glDeleteVertexArrays(1, &vao);
+}
+
 
 SceneObject::SceneObject(std::string obj_file)
 {

@@ -1,7 +1,6 @@
 #include "TerrainGenerator.h"
 
-
-//// Perlin noise map
+#include "CustomRandom.h"
 
 
 TerrainGenerator::TerrainGenerator()
@@ -12,13 +11,20 @@ TerrainGenerator::~TerrainGenerator()
 {
 }
 
-TerrainData TerrainGenerator::Generate(unsigned int square_size)
+TerrainData* TerrainGenerator::Generate(glm::vec2 dimensions)
+{
+    return Generate(dimensions.x, dimensions.y);
+}
+
+TerrainData* TerrainGenerator::Generate(unsigned int square_size)
 {
     return Generate(square_size, square_size);
 }
 
-TerrainData TerrainGenerator::Generate(unsigned int x_count, unsigned int z_count)
+TerrainData* TerrainGenerator::Generate(unsigned int x_count, unsigned int z_count)
 {
+    if (x_count <= 0 || z_count <= 0) return nullptr;
+
     unsigned int size_x = x_count + 1;
     unsigned int size_z = z_count + 1;
 
@@ -32,7 +38,12 @@ TerrainData TerrainGenerator::Generate(unsigned int x_count, unsigned int z_coun
     {
         for (size_t x = 0; x < size_x; x++)
         {
-            positions->push_back(glm::vec3(x - half_x, 0.0f, z - half_z));
+            positions->push_back(
+                glm::vec3(
+                    x - half_x, 
+                    CustomRandom::GetInstance().Generate(2.0f), 
+                    z - half_z)
+            );
         }
     }
 
@@ -77,5 +88,5 @@ TerrainData TerrainGenerator::Generate(unsigned int x_count, unsigned int z_coun
         normals.get()->push_back(glm::cross(p2 - p1, p0 - p1));
     }
 
-    return TerrainData { positions, indexes, normals };
+    return new TerrainData { positions, indexes, normals };
 }
