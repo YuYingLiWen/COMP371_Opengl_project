@@ -22,6 +22,7 @@
 #include "assimp/Importer.hpp"
 #include "assimp/Exporter.hpp"
 
+#include "TerrainGenerator.h"
 
 namespace AppTime { extern void UpdateTime(); }
 
@@ -143,44 +144,11 @@ int main(void)
 
 
     //// Perlin noise map
-    unsigned int size_x = 10 + 1;
-    unsigned int size_z = 5 + 1;
-
-    auto map_positions = std::make_unique<std::vector<glm::vec3>>();
-
-    float half_x = size_x * 0.5f;
-    float half_z = size_z * 0.5f;
-
-    for (size_t z = 0; z < size_z; z++) 
-    {
-        for (size_t x = 0; x < size_x; x++) 
-        {
-            map_positions->push_back(glm::vec3(x - half_x, 0.0f, z - half_z));
-        }
-    }
-
-    auto map_ebo = std::make_unique<std::vector<unsigned int>>();
-    auto map_normals = std::make_unique<std::vector<glm::vec3>>();
-
-    for (unsigned int z = 0; z < size_z - 1; z++)
-    {
-        for (unsigned int x = 0; x < size_x - 1; x++)
-        {
-            //// A rectangle formed by 2 triangles
-            // Triangle 1
-            map_ebo->push_back(x + z * size_x);           // P0
-            map_ebo->push_back(x + z * size_x + 1);       // P1
-            map_ebo->push_back(x + (z + 1) * size_x + 1); // P2
-
-            // Triangle 2
-            map_ebo->push_back(x + z * size_x);           // P0
-            map_ebo->push_back(x + (z + 1) * size_x + 1); // P1
-            map_ebo->push_back(x + (z + 1) * size_x);     // P2
-        }
-    }
-
-    SceneObject map(map_positions.get(), map_ebo.get());
+    TerrainGenerator tg;
+    TerrainData data = tg.Generate(10, 5);
+    SceneObject map(data.positions.get(), data.indexes.get(), data.normals.get());
     map.SetLayout(0, 3, GL_FLOAT, 0);
+    //map.SetLayout(1, 3, GL_FLOAT, 0);
 
 
 
