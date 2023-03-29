@@ -5,6 +5,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "Utils.h"
+#include "Transform.h"
 
 class Camera
 {
@@ -17,20 +18,9 @@ public:
 	float FOV() const;
 	float AspectRatio() const;
 
-	glm::vec3 GetPosition() const;
-	void SetPosition(glm::vec3 position);
-	void Translate(glm::vec3 translation);
-
-	void Rotate(float angle, glm::vec3 axis);
-	void SetRotation(glm::vec3 axis);
-
-	glm::vec3 Forward() const;
-	glm::vec3 Up() const;
-	glm::vec3 Right() const;
 	glm::mat4 GetView();
 	glm::mat4 GetProjection() const;
 	
-	glm::mat4 LookAt(glm::vec3 postion) const;
 	float& GetKeySpeed();
 
 	void UserInputs(GLFWwindow* window);
@@ -40,18 +30,16 @@ public:
 	static void ResetCamera(Camera&);
 
 public:
-	glm::vec3 forward;
 
 	unsigned int height;
 	unsigned int width;
 
 
 private:
-	glm::vec3 position;
-	glm::vec3 rotation;
+
+	Transform transform;
 
 	float fov;
-	glm::vec3 up;
 
 	float aspect_ratio;
 

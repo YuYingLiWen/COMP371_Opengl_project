@@ -13,10 +13,26 @@ SceneObject::~SceneObject()
     glDeleteVertexArrays(1, &vao);
 }
 
+glm::mat4 SceneObject::GetModel()
+{
+    glm::mat4 mat = glm::mat4(1.0f);
+    mat = glm::rotate(mat, glm::radians(transform.Rotation().x), glm::vec3(1.0f, 0.0f, 0.0f));
+    mat = glm::rotate(mat, glm::radians(transform.Rotation().y), glm::vec3(0.0f, 1.0f, 0.0f));
+    mat = glm::rotate(mat, glm::radians(transform.Rotation().z), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    mat = glm::scale(mat, transform.Scale());
+    
+    mat = glm::translate(mat, transform.Position());
+
+    return mat;
+}
+
 
 SceneObject::SceneObject(std::string obj_file)
 {
 }
+
+Transform& SceneObject::Transform() { return transform; }
 
 void SceneObject::Bind() const
 {

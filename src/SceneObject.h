@@ -10,16 +10,24 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include "Transform.h"
 
 class SceneObject
 {
 private:
 	unsigned int vao = -1, vbo = -1, ebo = -1, vbo2 = -1;
 	unsigned int ebo_count = -1;
+	Transform transform{};
+	glm::mat4 matrix = glm::mat4(1.0f);
 
 public: 
 	SceneObject(); // Empty Scene Object
 	~SceneObject();
+
+	Transform& Transform();
+
+	glm::mat4 GetModel();
+
 
 	template <typename T> SceneObject(std::vector<T>* vertexes, std::vector<unsigned int>* indexes)
 		:ebo_count(indexes->size())

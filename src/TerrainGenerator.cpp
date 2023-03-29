@@ -40,9 +40,9 @@ TerrainData* TerrainGenerator::Generate(unsigned int x_count, unsigned int z_cou
         {
             positions->push_back(
                 glm::vec3(
-                    x - half_x, 
-                    CustomRandom::GetInstance().Generate(2.0f), 
-                    z - half_z)
+                    (float)x - half_x, 
+                    0.0f,//CustomRandom::GetInstance().Generate(2.0f), 
+                    (float)z - half_z)
             );
         }
     }
@@ -78,14 +78,14 @@ TerrainData* TerrainGenerator::Generate(unsigned int x_count, unsigned int z_cou
         glm::vec3 p1 = (*positions)[(*indexes)[i + 1]];
         glm::vec3 p2 = (*positions)[(*indexes)[i + 2]];
 
-        normals.get()->push_back(glm::cross(p2 - p1, p0 -p1));
+        normals.get()->push_back(glm::normalize(glm::cross(p2 - p0, p1 - p0)));
 
         // Triangle 2
         p0 = (*positions)[(*indexes)[i + 3]];
         p1 = (*positions)[(*indexes)[i + 4]];
         p2 = (*positions)[(*indexes)[i + 5]];
 
-        normals.get()->push_back(glm::cross(p2 - p1, p0 - p1));
+        normals.get()->push_back(glm::normalize(glm::cross(p2 - p0, p1 - p0)));
     }
 
     return new TerrainData { positions, indexes, normals };

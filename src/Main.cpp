@@ -29,8 +29,8 @@ namespace AppTime { extern void UpdateTime(); }
 
 Camera camera(780, 1280, 65.0f);
 
-glm::vec3 dir_light(1.0f, 0.0f, 0.0f);
-glm::i32vec2 terrain_dimensions(5, 5);
+
+glm::i32vec2 terrain_dimensions(1, 1);
 
 static void glfwErrorCallback(int error, const char* description)
 {
@@ -138,11 +138,12 @@ int main(void)
 
     SceneObject cube1(positions.get(), indices.get());
     cube1.SetLayout(0, 3, GL_FLOAT, 3);
-    cube1.Unbind();
-
+    cube1.Transform().SetPosition(glm::vec3(0.0f, 5.0f, 0.0f));
+    
     SceneObject cube2(positions.get(), indices.get());
     cube2.SetLayout(0, 3, GL_FLOAT, 3);
-    cube2.Unbind();
+    cube2.Transform().SetPosition(glm::vec3(5.0f, 0.0f, 0.0f));
+
 
 
     //// Perlin noise map
@@ -168,13 +169,8 @@ int main(void)
 
     Renderer renderer;
 
-    glm::mat4 model = glm::mat4(1.0f);
-
-    glm::mat4 model2 = glm::mat4(1.0f);
-    model2 = glm::translate(model2, glm::vec3(5.0f, 0.0f, 0.0f));
-
     glm::mat4 model3 = glm::mat4(1.0f);
-    //model3 = glm::translate(model3, glm::vec3(-5.0f, 0.0f, 0.0f));
+
 
     glm::mat4 projection = camera.GetProjection();
     glm::mat4 view;
@@ -197,7 +193,7 @@ int main(void)
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    glm::vec3 light_dir(1.0f, 0.0f, 0.0f);
+    glm::vec3 directional_light(10.0f, 10.0f, 0.0f);
     double d = 2;
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -212,28 +208,29 @@ int main(void)
         simple_shader.Bind();
 
         /* Render here */
-        model = glm::rotate(model, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        cube1.Transform().Rotate(glm::radians(1.0f) * AppTime::DeltaTime(), glm::vec3(1.0f, 0.0f, 0.0f));
         simple_shader.SetUniformValueMat4f("u_projection", projection);
-        simple_shader.SetUniformValueMat4f("u_model", model);
+        simple_shader.SetUniformValueMat4f("u_model", cube1.GetModel());
         simple_shader.SetUniformValueMat4f("u_view", view);
         simple_shader.SetUniformValue4f("u_color", 1.0f, 0.0f, 0.0f, 1.0f);
         renderer.Draw(cube1);
 
-        model2 = glm::translate(model2, glm::vec3(0.0f, glm::sin(glfwGetTime()) * AppTime::DeltaTime(), 0.0f));
-        model2 = glm::rotate(model2, glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        cube2.Transform().Rotate(glm::radians(1.0f) * AppTime::DeltaTime(), glm::vec3(0.0f, 1.0f, 0.0f));
+        cube2.Transform().Translate(glm::vec3(0.0f, glm::sin(glfwGetTime())* AppTime::DeltaTime(), 0.0f));
+        
         simple_shader.SetUniformValueMat4f("u_projection", projection);
         simple_shader.SetUniformValueMat4f("u_view", view);
-        simple_shader.SetUniformValueMat4f("u_model", model2);
-        simple_shader.SetUniformValue4f("u_color", 0.0f, 1.0f, 0.0f, 1.0f);
+        simple_shader.SetUniformValueMat4f("u_model", cube2.GetModel());
+        simple_shader.SetUniformValue4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
         renderer.Draw(cube2);
+
 
         terrain_shader.Bind();
         terrain_shader.SetUniformValueMat4f("u_projection", projection);
         terrain_shader.SetUniformValueMat4f("u_view", view);
         terrain_shader.SetUniformValueMat4f("u_model", model3);
         
-        terrain_shader.SetUniformValue3f("u_dir_light_dir", light_dir);
-        //terrain_shader.SetUniformValue3f("u_normal", 0.0f, 1.0f, 0.0f);
+        terrain_shader.SetUniformValue3f("u_light", directional_light);
         terrain_shader.SetUniformValue4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
         renderer.Draw(*map);
 
@@ -272,9 +269,8 @@ int main(void)
                     map->SetLayout(0, 3, GL_FLOAT, 0);
                 }
             }
-            ImGui::InputDouble("Input Double", &d);
 
-            ImGui::DragFloat3("Directional Light", glm::value_ptr(light_dir), 0.01f, -1.0f, 1.0f);
+            ImGui::DragFloat3("Directional Light", glm::value_ptr(directional_light), 0.01f, -100.0f, 100.0f);
 
             if (ImGui::Button("Reset Camera"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
                 Camera::ResetCamera(camera);

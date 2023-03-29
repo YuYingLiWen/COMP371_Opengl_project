@@ -20,7 +20,6 @@ static float scroll_speed = 100.0f;
 static glm::dvec2 mouse_pos;
 
 
-
 // Camera
 extern Camera camera;
 #define DEFAULT_CAMERA_ROTATION glm::vec3(35.0f, 45.0f, 0.0f)
@@ -28,33 +27,31 @@ extern Camera camera;
 static float far_plane = 500.0f;
 
 
-
-
 Camera::Camera()
     :
     fov          (65.0f), 
-    position     (DEFAULT_CAMERA_POSITION),
-    forward      (glm::vec3(0.0f, 0.0f, -1.0f)),
-	up           (glm::vec3(0.0f, 1.0f, 0.0f)),
 	height       (780),
 	width        (1280),
-    matrix       (glm::lookAt(position, position + forward, up)),
-	aspect_ratio ((float)width / (float)height),
-    rotation     (DEFAULT_CAMERA_ROTATION)
-{}
+	aspect_ratio ((float)width / (float)height)
+{
+    transform.Set(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_ROTATION);
+    transform.SetForward(glm::vec3(0.0f, 0.0f, -1.0f));
+    transform.SetUp(glm::vec3(0.0f, 1.0f, 0.0f));
+    matrix = transform.LookAt();
+}
 
 Camera::Camera(unsigned int height, unsigned int width, float fov)
 	: 
     height       (height), 
     width        (width), 
     fov          (fov), 
-    aspect_ratio ((float)width / (float)height),
-    position     (DEFAULT_CAMERA_POSITION),
-    forward      (glm::vec3(0.0f, 0.0f, -1.0f)),
-    up           (glm::vec3(0.0f, 1.0f, 0.0f)),
-    matrix       (glm::lookAt(position, position + forward, up)),
-    rotation     (DEFAULT_CAMERA_ROTATION)
-{}
+    aspect_ratio ((float)width / (float)height)
+{
+    transform.Set(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_ROTATION);
+    transform.SetForward(glm::vec3(0.0f, 0.0f, -1.0f));
+    transform.SetUp(glm::vec3(0.0f, 1.0f, 0.0f));
+    matrix = transform.LookAt();
+}
 
 
 Camera::~Camera()
@@ -64,23 +61,15 @@ Camera::~Camera()
 
 float Camera::FOV() const { return fov; }
 
-glm::vec3 Camera::GetPosition() const { return position; }
-void Camera::SetPosition(glm::vec3 position) { this->position = position; }
-void Camera::Translate(glm::vec3 translation) { this->position += translation;  }
 
-glm::vec3 Camera::Forward() const { return forward; }
-glm::vec3 Camera::Up() const {
-    return up;
-}// glm::normalize(glm::cross(forward, Right())); }
-glm::vec3 Camera::Right() const { return glm::normalize(glm::cross(up, forward)); }
 float Camera::AspectRatio() const { return aspect_ratio; }
 
 glm::mat4 Camera::GetView()
 {
-    matrix = glm::lookAt(position, position + forward, up);
-    matrix = glm::rotate(matrix, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    matrix = glm::rotate(matrix, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    matrix = glm::rotate(matrix, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    matrix = transform.LookAt();
+    matrix = glm::rotate(matrix, glm::radians(transform.Rotation().x), glm::vec3(1.0f, 0.0f, 0.0f));
+    matrix = glm::rotate(matrix, glm::radians(transform.Rotation().y), glm::vec3(0.0f, 1.0f, 0.0f));
+    matrix = glm::rotate(matrix, glm::radians(transform.Rotation().z), glm::vec3(0.0f, 0.0f, 1.0f));
 
     return matrix;
 }
@@ -90,36 +79,10 @@ glm::mat4 Camera::GetProjection() const
 	return glm::perspective(glm::radians(fov), aspect_ratio, 0.1f, far_plane);
 }
 
-glm::mat4 Camera::LookAt(glm::vec3 lookat_pos) const
-{
-    return glm::lookAt(position, position + (position - lookat_pos), up);
-}
-
-void Camera::Rotate(float angle, glm::vec3 axis)
-{
-    if (axis.x > 0)
-    {
-        rotation.x = glm::clamp(rotation.x + angle, -90.0f, 90.0f);
-    }
-    if (axis.y > 0)
-    {
-        rotation.y += angle;
-    }
-    if (axis.z > 0)
-    {
-        rotation.z += angle;
-    }
-}
-
-void Camera::SetRotation(glm::vec3 axis)
-{
-    rotation = axis;
-}
-
 void Camera::ResetCamera(Camera& camera)
 {
-    camera.SetRotation(DEFAULT_CAMERA_ROTATION);
-    camera.SetPosition(DEFAULT_CAMERA_POSITION);
+    camera.transform.SetRotation(DEFAULT_CAMERA_ROTATION);
+    camera.transform.SetPosition(DEFAULT_CAMERA_POSITION);
 }
 
 void Camera::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -167,7 +130,7 @@ void Camera::KeyCallback(GLFWwindow* window, int key, int scancode, int action, 
 
 void Camera::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    camera.Translate(glm::vec3(0.0f, 0.0f, -yoffset * scroll_speed * AppTime::DeltaTime()));
+    camera.transform.Translate(glm::vec3(0.0f, 0.0f, -yoffset * scroll_speed * AppTime::DeltaTime()));
 }
 
 float& Camera::GetKeySpeed()
@@ -179,14 +142,20 @@ float& Camera::GetKeySpeed()
 void Camera::UserInputs(GLFWwindow* window)
 {
     glfwGetCursorPos(window, &mouse_pos.x, &mouse_pos.y);
-    PRINT_LOG("Mouse Position (x:" << mouse_pos.x << ", y:" << mouse_pos.y << ")");
+    //PRINT_LOG("Mouse Position (x:" << mouse_pos.x << ", y:" << mouse_pos.y << ")");
 
-    if (W_IS_HELD) this->Translate(Up() * key_speed * AppTime::DeltaTime());
-    if (A_IS_HELD) this->Translate(Right() * key_speed * AppTime::DeltaTime());
-    if (S_IS_HELD) this->Translate(-Up() * key_speed * AppTime::DeltaTime());
-    if (D_IS_HELD) this->Translate(-Right() * key_speed * AppTime::DeltaTime());
+    if (W_IS_HELD) transform.Translate(transform.Up() * key_speed * AppTime::DeltaTime());
+    if (A_IS_HELD) transform.Translate(transform.Right() * key_speed * AppTime::DeltaTime());
+    if (S_IS_HELD) transform.Translate(-transform.Up() * key_speed * AppTime::DeltaTime());
+    if (D_IS_HELD) transform.Translate(-transform.Right() * key_speed * AppTime::DeltaTime());
 
-    if (Q_IS_HELD) camera.Rotate(rot_degree * rot_speed * AppTime::DeltaTime(), glm::vec3(0.0f, 1.0f, 0.0f));
-    if (E_IS_HELD) camera.Rotate(-rot_degree * rot_speed * AppTime::DeltaTime(), glm::vec3(0.0f, 1.0f, 0.0f));
+    if (Q_IS_HELD)
+    {
+        camera.transform.Rotate(-rot_degree * rot_speed * AppTime::DeltaTime(), glm::vec3(0.0f, 1.0f, 0.0f));
+    }
+    if (E_IS_HELD)
+    {
+        camera.transform.Rotate(rot_degree * rot_speed * AppTime::DeltaTime(), glm::vec3(0.0f, 1.0f, 0.0f));
+    }
 }
 
