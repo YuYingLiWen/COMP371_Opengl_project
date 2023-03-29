@@ -38,7 +38,7 @@ void Transform::Rotate(float angle, glm::vec3 axis)
 {
     if (axis.x > 0)
     {
-        rotation.x = glm::clamp(rotation.x + angle, -90.0f, 90.0f);
+        rotation.x += angle; //glm::clamp(rotation.x + angle, -90.0f, 90.0f);
     }
     if (axis.y > 0)
     {

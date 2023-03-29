@@ -208,14 +208,14 @@ int main(void)
         simple_shader.Bind();
 
         /* Render here */
-        cube1.Transform().Rotate(glm::radians(1.0f) * AppTime::DeltaTime(), glm::vec3(1.0f, 0.0f, 0.0f));
+        cube1.Transform().Rotate(glm::radians(15.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         simple_shader.SetUniformValueMat4f("u_projection", projection);
         simple_shader.SetUniformValueMat4f("u_model", cube1.GetModel());
         simple_shader.SetUniformValueMat4f("u_view", view);
         simple_shader.SetUniformValue4f("u_color", 1.0f, 0.0f, 0.0f, 1.0f);
         renderer.Draw(cube1);
 
-        cube2.Transform().Rotate(glm::radians(1.0f) * AppTime::DeltaTime(), glm::vec3(0.0f, 1.0f, 0.0f));
+        cube2.Transform().Rotate(glm::radians(15.0f) , glm::vec3(0.0f, 1.0f, 0.0f));
         cube2.Transform().Translate(glm::vec3(0.0f, glm::sin(glfwGetTime())* AppTime::DeltaTime(), 0.0f));
         
         simple_shader.SetUniformValueMat4f("u_projection", projection);
@@ -223,7 +223,6 @@ int main(void)
         simple_shader.SetUniformValueMat4f("u_model", cube2.GetModel());
         simple_shader.SetUniformValue4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
         renderer.Draw(cube2);
-
 
         terrain_shader.Bind();
         terrain_shader.SetUniformValueMat4f("u_projection", projection);
