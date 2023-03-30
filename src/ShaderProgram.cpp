@@ -75,7 +75,18 @@ void ShaderProgram::LinkAndValidate()
     }
 }
 
-void ShaderProgram::SetUniformValue4f(const std::string& name, float v0, float v1, float v2, float v3)
+void ShaderProgram::SetUniformInt(const std::string& name, int integer)
+{
+    int location = glGetUniformLocation(program_id, name.c_str());
+
+    if (GetUniformLocation(name, location))
+    {
+        glUniform1i(location, integer);
+    }
+}
+
+
+void ShaderProgram::SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3)
 {
     int location = glGetUniformLocation(program_id, name.c_str());
 
@@ -85,7 +96,7 @@ void ShaderProgram::SetUniformValue4f(const std::string& name, float v0, float v
     }
 }
 
-void ShaderProgram::SetUniformValue4f(const std::string& name, glm::vec4 v4)
+void ShaderProgram::SetUniform4f(const std::string& name, glm::vec4 v4)
 {
     int location = glGetUniformLocation(program_id, name.c_str());
 
@@ -95,7 +106,7 @@ void ShaderProgram::SetUniformValue4f(const std::string& name, glm::vec4 v4)
     }
 }
 
-void ShaderProgram::SetUniformValue3f(const std::string& name, float v0, float v1, float v2)
+void ShaderProgram::SetUniform3f(const std::string& name, float v0, float v1, float v2)
 {
     int location = glGetUniformLocation(program_id, name.c_str());
 
@@ -105,7 +116,7 @@ void ShaderProgram::SetUniformValue3f(const std::string& name, float v0, float v
     }
 }
 
-void ShaderProgram::SetUniformValue3f(const std::string& name, glm::vec3 v3)
+void ShaderProgram::SetUniform3f(const std::string& name, glm::vec3 v3)
 {
     int location = glGetUniformLocation(program_id, name.c_str());
 
@@ -115,7 +126,7 @@ void ShaderProgram::SetUniformValue3f(const std::string& name, glm::vec3 v3)
     }
 }
 
-void ShaderProgram::SetUniformValueMat4f(const std::string& name, const glm::mat4& matrix)
+void ShaderProgram::SetUniformMat4f(const std::string& name, const glm::mat4& matrix)
 {
     int location;
 

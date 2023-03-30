@@ -26,14 +26,16 @@ public:
 
 	void Attach(const std::string& vs, const std::string& fs);
 
-	void SetUniformValue4f(const std::string& name, float v0, float v1, float v2, float v3);
-	void SetUniformValue4f(const std::string& name, glm::vec4 v4);
-	void SetUniformValue3f(const std::string& name, float v0, float v1, float v2);
-	void SetUniformValue3f(const std::string& name, glm::vec3 v3);
-	void SetUniformValueMat4f(const std::string& name, const glm::mat4& matrix);
+	void SetUniformInt(const std::string& name, int integer);
+	void SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
+	void SetUniform4f(const std::string& name, glm::vec4 v4);
+	void SetUniform3f(const std::string& name, float v0, float v1, float v2);
+	void SetUniform3f(const std::string& name, glm::vec3 v3);
+	void SetUniformMat4f(const std::string& name, const glm::mat4& matrix);
 	bool IsValid() const;
 private:
 	void LinkAndValidate();
+
 
 	bool GetUniformLocation(const std::string& name, int& location);
 

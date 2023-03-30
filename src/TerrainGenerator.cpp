@@ -41,7 +41,7 @@ TerrainData* TerrainGenerator::Generate(unsigned int x_count, unsigned int z_cou
             positions->push_back(
                 glm::vec3(
                     (float)x - half_x, 
-                    CustomRandom::GetInstance().Generate(3.0f), 
+                    0.0f,//CustomRandom::GetInstance().Generate(3.0f), 
                     (float)z - half_z)
             );
         }

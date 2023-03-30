@@ -32,6 +32,8 @@ Camera camera(780, 1280, 65.0f);
 
 glm::i32vec2 terrain_dimensions(1, 1);
 
+extern bool WIREMESH_TOGGLE;
+
 static void glfwErrorCallback(int error, const char* description)
 {
     printf("GLFW Error %d: %s\n", error, description);
@@ -208,28 +210,29 @@ int main(void)
 
         /* Render here */
         cube1.Transform().Rotate(glm::radians(15.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        simple_shader.SetUniformValueMat4f("u_projection", projection);
-        simple_shader.SetUniformValueMat4f("u_model", cube1.GetModel());
-        simple_shader.SetUniformValueMat4f("u_view", view);
-        simple_shader.SetUniformValue4f("u_color", 1.0f, 0.0f, 0.0f, 1.0f);
+        simple_shader.SetUniformMat4f("u_projection", projection);
+        simple_shader.SetUniformMat4f("u_model", cube1.GetModel());
+        simple_shader.SetUniformMat4f("u_view", view);
+        simple_shader.SetUniform4f("u_color", 1.0f, 0.0f, 0.0f, 1.0f);
         renderer.Draw(cube1);
 
         cube2.Transform().Rotate(glm::radians(15.0f) , glm::vec3(0.0f, 1.0f, 0.0f));
         cube2.Transform().Translate(glm::vec3(0.0f, glm::sin(glfwGetTime())* AppTime::DeltaTime(), 0.0f));
         
-        simple_shader.SetUniformValueMat4f("u_projection", projection);
-        simple_shader.SetUniformValueMat4f("u_view", view);
-        simple_shader.SetUniformValueMat4f("u_model", cube2.GetModel());
-        simple_shader.SetUniformValue4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
+        simple_shader.SetUniformMat4f("u_projection", projection);
+        simple_shader.SetUniformMat4f("u_view", view);
+        simple_shader.SetUniformMat4f("u_model", cube2.GetModel());
+        simple_shader.SetUniform4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
         renderer.Draw(cube2);
 
         terrain_shader.Bind();
-        terrain_shader.SetUniformValueMat4f("u_projection", projection);
-        terrain_shader.SetUniformValueMat4f("u_view", view);
-        terrain_shader.SetUniformValueMat4f("u_model", map->GetModel());
-        
-        terrain_shader.SetUniformValue3f("u_light", directional_light);
-        terrain_shader.SetUniformValue4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
+        terrain_shader.SetUniformMat4f("u_projection", projection);
+        terrain_shader.SetUniformMat4f("u_view", view);
+        terrain_shader.SetUniformMat4f("u_model", map->GetModel());
+        terrain_shader.SetUniformInt("u_use_wiremesh", WIREMESH_TOGGLE);
+
+        terrain_shader.SetUniform3f("u_light", directional_light);
+        terrain_shader.SetUniform4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
         renderer.Draw(*map);
 
         

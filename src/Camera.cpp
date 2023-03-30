@@ -9,7 +9,7 @@ static bool D_IS_HELD = false;
 static bool Q_IS_HELD = false;
 static bool E_IS_HELD = false;
 
-static bool wiremesh_toggle = false;
+bool WIREMESH_TOGGLE = false;
 
 static float key_speed = 5.0f;
 static float rot_degree = 5.0f;
@@ -103,10 +103,10 @@ void Camera::KeyCallback(GLFWwindow* window, int key, int scancode, int action, 
 
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
     {
-        if (wiremesh_toggle) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        if (WIREMESH_TOGGLE) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         else glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-        wiremesh_toggle = !wiremesh_toggle;
+        WIREMESH_TOGGLE = !WIREMESH_TOGGLE;
     }
 
     if (key == GLFW_KEY_W && action == GLFW_PRESS)W_IS_HELD = true;
