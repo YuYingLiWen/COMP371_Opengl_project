@@ -9,13 +9,14 @@
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 #include "Transform.h"
 
 class SceneObject
 {
 private:
-	unsigned int vao = -1, vbo = -1, ebo = -1, vbo2 = -1;
+	unsigned int vao = -1, positions_vbo = -1, ebo = -1, normals_vbo = -1;
 	unsigned int ebo_count = -1;
 	Transform transform{};
 
@@ -27,46 +28,18 @@ public:
 
 	glm::mat4 GetModel();
 
+	SceneObject(std::vector<glm::vec3>* vertexes, std::vector<unsigned int>* indexes);
+	SceneObject(std::vector<glm::vec3>* vertexes, std::vector<unsigned int>* indexes, std::vector<glm::vec3>* normals);
 
-	template <typename T> SceneObject(std::vector<T>* vertexes, std::vector<unsigned int>* indexes)
-		:ebo_count(indexes->size())
-	{
-		Populate(vertexes, indexes);
-	}
-
-	template <typename T> SceneObject(std::vector<T>* vertexes, std::vector<unsigned int>* indexes, std::vector<glm::vec3>* normals)
-		:ebo_count(indexes->size())
-	{
-		Populate(vertexes, indexes, normals);
-	}
-
-	template <typename T> void Populate(std::vector<T>* vertexes, std::vector<unsigned int>* indexes, std::vector<glm::vec3>* normals = nullptr)
-	{
-		glGenVertexArrays(1, &vao);
-		glBindVertexArray(vao);
-		
-		glGenBuffers(1, &vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, vertexes->size() * sizeof(T), &(*vertexes)[0], GL_STATIC_DRAW);
-
-		if (normals != nullptr)
-		{
-			/*glGenBuffers(1, &vbo2);
-			glBindBuffer(GL_ARRAY_BUFFER, vbo2);
-			glBufferData(GL_ARRAY_BUFFER, normals->size() * sizeof(glm::vec3), &(*normals)[0], GL_STATIC_DRAW);*/
-		}
-
-		glGenBuffers(1, &ebo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexes->size() * sizeof(unsigned int), &(*indexes)[0], GL_STATIC_DRAW);
-	}
-
+	void Populate(std::vector<glm::vec3>* positions, std::vector<unsigned int>* indexes, std::vector<glm::vec3>* normals = nullptr);
+	
 	SceneObject(std::string obj_file);
 
 	void Bind() const;
 	void Unbind() const;
 	unsigned int GetCount() const;
-	void SetLayout(unsigned int index, unsigned int count, GLenum type, unsigned int stride);
 
+private:
+	void SetLayout(unsigned int index, unsigned int count, GLenum type, unsigned int stride);
 };
 

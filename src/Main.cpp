@@ -91,20 +91,21 @@ int main(void)
 
     PRINT_LOG(glGetString(GL_VERSION)); // Prints Opengl version
 
-    auto positions = std::make_unique<std::vector<float>>(); 
-    
-    *positions = std::vector<float>{
+    auto positions = std::make_unique<std::vector<glm::vec3>>();
+
+    *positions = std::vector<glm::vec3>{
+        
         // Front face
-        -0.5f, -0.5f, 0.5f,   // 0 Bot Left
-         0.5f, -0.5f, 0.5f,   // 1 Bot Right
-         0.5f,  0.5f, 0.5f,   // 2 Top Right
-        -0.5f,  0.5f, 0.5f,    // 3 Top Left
+        glm::vec3(-0.5f, -0.5f, 0.5f),   // 0 Bot Left
+        glm::vec3( 0.5f, -0.5f, 0.5f),   // 1 Bot Right
+        glm::vec3( 0.5f,  0.5f, 0.5f),   // 2 Top Right
+        glm::vec3(-0.5f,  0.5f, 0.5f),   // 3 Top Left
 
         // Back face
-        -0.5f, -0.5f, -0.5f,   // 4 Bot Left
-         0.5f, -0.5f, -0.5f,   // 5 Bot Right
-         0.5f,  0.5f, -0.5f,   // 6 Top Right
-        -0.5f,  0.5f, -0.5f    // 7 Top Left
+        glm::vec3(-0.5f, -0.5f, -0.5f),  // 4 Bot Left
+        glm::vec3( 0.5f, -0.5f, -0.5f),  // 5 Bot Right
+        glm::vec3( 0.5f,  0.5f, -0.5f),  // 6 Top Right
+        glm::vec3(-0.5f,  0.5f, -0.5f),  // 7 Top Left
     };
 
     // Creating index buffer
@@ -137,11 +138,11 @@ int main(void)
     };
 
     SceneObject cube1(positions.get(), indices.get());
-    cube1.SetLayout(0, 3, GL_FLOAT, 3);
+    //cube1.SetLayout(0, 3, GL_FLOAT, 3 * sizeof(float));
     cube1.Transform().SetPosition(glm::vec3(0.0f, 5.0f, 0.0f));
     
     SceneObject cube2(positions.get(), indices.get());
-    cube2.SetLayout(0, 3, GL_FLOAT, 3);
+    //cube2.SetLayout(0, 3, GL_FLOAT, 3 * sizeof(float));
     cube2.Transform().SetPosition(glm::vec3(5.0f, 0.0f, 0.0f));
 
 
@@ -153,8 +154,6 @@ int main(void)
     if (data)
     {
         map = new SceneObject(data->positions.get(), data->indexes.get(), data->normals.get());
-        map->SetLayout(0, 3, GL_FLOAT, 0);
-        //map.SetLayout(1, 3, GL_FLOAT, 0);
     }
 
 
@@ -193,8 +192,8 @@ int main(void)
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    glm::vec3 directional_light(10.0f, 10.0f, 0.0f);
-    double d = 2;
+    glm::vec3 directional_light(0.5f, -1.0f, 0.0f);
+    
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -227,7 +226,7 @@ int main(void)
         terrain_shader.Bind();
         terrain_shader.SetUniformValueMat4f("u_projection", projection);
         terrain_shader.SetUniformValueMat4f("u_view", view);
-        terrain_shader.SetUniformValueMat4f("u_model", model3);
+        terrain_shader.SetUniformValueMat4f("u_model", map->GetModel());
         
         terrain_shader.SetUniformValue3f("u_light", directional_light);
         terrain_shader.SetUniformValue4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
@@ -265,7 +264,6 @@ int main(void)
                 if (data)
                 {
                     map = new SceneObject(data->positions.get(), data->indexes.get(), data->normals.get());
-                    map->SetLayout(0, 3, GL_FLOAT, 0);
                 }
             }
 
