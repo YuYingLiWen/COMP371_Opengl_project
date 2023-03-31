@@ -17,7 +17,7 @@ ShaderProgram::~ShaderProgram()
 void ShaderProgram::Bind() const
 {
     if (valid) glUseProgram(program_id);
-    else PRINT_LOG("Invalid shader program, please fix before use.");
+    else PRINT_LOG(name << " is invalid, please fix before use.");
 }
 
 void ShaderProgram::Unbind() const
@@ -27,12 +27,15 @@ void ShaderProgram::Unbind() const
 
 void ShaderProgram::Attach(const std::string& vs, const std::string& fs)
 {
+    name = vs;
+
     std::string vs_source= ParseShader(vs);
     std::string fs_source = ParseShader(fs);
     
     bool vs_valid = CompileShader(GL_VERTEX_SHADER, vs_source, vs_id);
     bool fs_valid = CompileShader(GL_FRAGMENT_SHADER, fs_source, fs_id);
     
+    PRINT_LOG(name);
     PRINT_LOG("Vertex Shader: "   << (vs_valid ? "succesfully compiled." : "failed to compile."));
     PRINT_LOG("Fragment Shader: " << (fs_valid ? "succesfully compiled." : "failed to compile."));
 
@@ -59,19 +62,20 @@ void ShaderProgram::LinkAndValidate()
     glDetachShader(program_id, vs_id);
     glDetachShader(program_id, fs_id);
 
+
     if (validation == GL_FALSE)
     {
         valid = false;
         int length{};
         auto message = std::make_unique<char>();
         glGetShaderInfoLog(program_id, length, &length, message.get());
-        PRINT_LOG("Shader program failed validation.");
+        PRINT_LOG(name << " shader program failed validation.");
         PRINT_LOG(message);
     }
     else
     {
-        PRINT_LOG("Shader program passed validation.");
         valid = true;
+        PRINT_LOG(name << " shader program passed validation");
     }
 }
 

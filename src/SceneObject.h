@@ -16,8 +16,8 @@
 class SceneObject
 {
 private:
-	unsigned int vao = -1, positions_vbo = -1, ebo = -1, normals_vbo = -1;
-	unsigned int ebo_count = -1;
+	unsigned int vao = -1, positions_vbo = -1, ibo = -1, normals_vbo = -1;
+	unsigned int index_count = -1;
 	Transform transform{};
 
 public: 

@@ -43,7 +43,7 @@ private:
 
 	float aspect_ratio;
 
-	float key_speed = 5.0f;
+	float key_speed = 50.0f;
 	glm::mat4 matrix = glm::mat4(1.0f);
 };
 

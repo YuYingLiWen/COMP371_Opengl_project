@@ -25,5 +25,8 @@ class Renderer
 {
 public:
     void Draw(const SceneObject& obj);
+
+    void Draw(GLenum mode, const SceneObject& obj);
+
     void Clear() const;
 };

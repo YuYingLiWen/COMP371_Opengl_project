@@ -62,6 +62,13 @@ void Renderer::Draw(const SceneObject& obj)
     glDrawElements(GL_TRIANGLES, obj.GetCount(), GL_UNSIGNED_INT, nullptr); //Draws with index buffer
 }
 
+void Renderer::Draw(GLenum mode, const SceneObject& obj)
+{
+    obj.Bind();
+
+    glDrawElements(mode, obj.GetCount(), GL_UNSIGNED_INT, nullptr); //Draws with index buffer
+}
+
 void Renderer::Clear() const
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

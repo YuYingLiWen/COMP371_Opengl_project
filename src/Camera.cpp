@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-namespace AppTime { extern float DeltaTime(); }
+#include "AppTime.h"
 
 static bool W_IS_HELD = false;
 static bool A_IS_HELD = false;
@@ -22,9 +22,9 @@ static glm::dvec2 mouse_pos;
 
 // Camera
 extern Camera camera;
-#define DEFAULT_CAMERA_ROTATION glm::vec3(35.0f, 45.0f, 0.0f)
-#define DEFAULT_CAMERA_POSITION glm::vec3(0.0f, 0.0f, 10.0f)
-static float far_plane = 500.0f;
+#define DEFAULT_CAMERA_ROTATION glm::vec3(35.0f, 0.0f, 0.0f)
+#define DEFAULT_CAMERA_POSITION glm::vec3(0.0f, 0.0f, 100.0f)
+static float far_plane = 1000.0f;
 
 
 Camera::Camera()

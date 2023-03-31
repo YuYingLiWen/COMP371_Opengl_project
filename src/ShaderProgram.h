@@ -17,6 +17,8 @@ private:
 	unsigned int program_id = -1;
 	unsigned int vs_id = -1, fs_id = -1;
 	bool valid = false;
+
+	std::string name = "UNKOWN SHADER";
 public:
 	ShaderProgram();
 	~ShaderProgram();

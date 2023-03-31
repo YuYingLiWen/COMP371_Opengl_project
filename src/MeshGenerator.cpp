@@ -1,27 +1,27 @@
-#include "TerrainGenerator.h"
+#include "MeshGenerator.h"
 
 #include "CustomRandom.h"
+#include "AppTime.h"
 
-
-TerrainGenerator::TerrainGenerator()
+MeshGenerator::MeshGenerator()
 {
 }
 
-TerrainGenerator::~TerrainGenerator()
+MeshGenerator::~MeshGenerator()
 {
 }
 
-TerrainData* TerrainGenerator::Generate(glm::vec2 dimensions)
+std::shared_ptr<Mesh> MeshGenerator::Generate(glm::i32vec2 dimensions)
 {
     return Generate(dimensions.x, dimensions.y);
 }
 
-TerrainData* TerrainGenerator::Generate(unsigned int square_size)
+std::shared_ptr<Mesh> MeshGenerator::Generate(unsigned int square_size)
 {
     return Generate(square_size, square_size);
 }
 
-TerrainData* TerrainGenerator::Generate(unsigned int x_count, unsigned int z_count)
+std::shared_ptr<Mesh> MeshGenerator::Generate(unsigned int x_count, unsigned int z_count)
 {
     if (x_count <= 0 || z_count <= 0) return nullptr;
 
@@ -41,7 +41,7 @@ TerrainData* TerrainGenerator::Generate(unsigned int x_count, unsigned int z_cou
             positions->push_back(
                 glm::vec3(
                     (float)x - half_x, 
-                    0.0f,//CustomRandom::GetInstance().Generate(3.0f), 
+                    0.0f,
                     (float)z - half_z)
             );
         }
@@ -88,5 +88,68 @@ TerrainData* TerrainGenerator::Generate(unsigned int x_count, unsigned int z_cou
         normals.get()->push_back(glm::normalize(glm::cross(p2 - p0, p1 - p0)));
     }
 
-    return new TerrainData { positions, indexes, normals };
+    return std::make_shared<Mesh>(Mesh { positions, indexes, normals });
 }
+
+std::shared_ptr<Mesh> MeshGenerator::GenerateGrid(unsigned int size, float spread)
+{
+    if (size <= 0) return nullptr;
+
+    unsigned int length = size + 1;
+
+    /// Generate Positions
+    auto positions = std::make_shared<std::vector<glm::vec3>>();
+
+    float half_size = length * spread * 0.5f;
+
+
+    double z_inc = 0.0f;
+    for (size_t z = 0; z < length; z++)
+    {
+        double x_inc = 0.0f;
+
+        for (size_t x = 0; x < length; x++)
+        {
+            positions->push_back(
+                glm::vec3(
+                    (float)x_inc - half_size, 
+                    0.0f,
+                    (float)z_inc - half_size)
+            );
+            x_inc += spread;
+        }
+        z_inc += spread;
+    }
+
+    /// Generate Indexes
+    auto indexes = std::make_shared<std::vector<unsigned int>>();
+
+    for (unsigned int z = 0; z < length - 1; z++)
+    {
+        for (unsigned int x = 0; x < length - 1; x++)
+        {
+            //// A rectangle formed by 4 sides triangles
+
+            //S1
+            indexes->push_back(x + z * length);           // P0
+            indexes->push_back(x + z * length + 1);       // P1
+            
+            //S2
+            indexes->push_back(x + z * length + 1);       // P1
+            indexes->push_back(x + (z + 1) * length + 1); // P2
+
+
+            //S3
+            indexes->push_back(x + (z + 1) * length + 1); // P2
+            indexes->push_back(x + (z + 1) * length);     // P3
+            
+            //S4
+            indexes->push_back(x + (z + 1) * length);     // P3
+            indexes->push_back(x + z * length);           // P0
+        }
+    }
+
+    return std::make_shared<Mesh>(Mesh { positions, indexes });
+}
+
+

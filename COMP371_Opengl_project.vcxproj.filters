@@ -54,10 +54,16 @@
     <ClCompile Include="src\CustomRandom.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\TerrainGenerator.cpp">
+    <ClCompile Include="src\MeshGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Transform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AppTime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Terrain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -113,10 +119,13 @@
     <ClInclude Include="src\CustomRandom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\TerrainGenerator.h">
+    <ClInclude Include="src\MeshGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Terrain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

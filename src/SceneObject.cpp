@@ -8,7 +8,7 @@ SceneObject::~SceneObject()
 {
     glDeleteBuffers(1, &positions_vbo);
     glDeleteBuffers(1, &normals_vbo);
-    glDeleteBuffers(1, &ebo);
+    glDeleteBuffers(1, &ibo);
 
     glDeleteVertexArrays(1, &vao);
 }
@@ -29,13 +29,13 @@ glm::mat4 SceneObject::GetModel()
 }
 
 SceneObject::SceneObject(std::vector<glm::vec3>* vertexes, std::vector<unsigned int>* indexes)
-	:ebo_count(indexes->size())
+	:index_count(indexes->size())
 {
 	Populate(vertexes, indexes);
 }
 
 SceneObject::SceneObject(std::vector<glm::vec3>* vertexes, std::vector<unsigned int>* indexes, std::vector<glm::vec3>* normals)
-	:ebo_count(indexes->size())
+	:index_count(indexes->size())
 {
 	Populate(vertexes, indexes, normals);
 }
@@ -58,8 +58,8 @@ void SceneObject::Populate(std::vector<glm::vec3>* positions, std::vector<unsign
 		SetLayout(1, 3, GL_FLOAT, sizeof(glm::vec3));
 	}
 
-	glGenBuffers(1, &ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glGenBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexes->size() * sizeof(unsigned int), &(*indexes)[0], GL_STATIC_DRAW);
 }
 
@@ -85,7 +85,7 @@ void SceneObject::Unbind() const
 
 unsigned int SceneObject::GetCount() const
 {
-    return ebo_count;
+    return index_count;
 }
 
 void SceneObject::SetLayout(unsigned int index, unsigned int count, GLenum type, unsigned int stride)
