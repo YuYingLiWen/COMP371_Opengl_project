@@ -55,14 +55,14 @@ void WindowSizeCallback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void Renderer::Draw(const SceneObject& obj)
+void Renderer::Draw(SceneObject& obj) const
 {
     obj.Bind();
 
     glDrawElements(GL_TRIANGLES, obj.GetCount(), GL_UNSIGNED_INT, nullptr); //Draws with index buffer
 }
 
-void Renderer::Draw(GLenum mode, const SceneObject& obj)
+void Renderer::Draw(GLenum mode, SceneObject& obj) const
 {
     obj.Bind();
 

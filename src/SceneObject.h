@@ -12,6 +12,7 @@
 #include "glm/gtc/type_ptr.hpp"
 
 #include "Transform.h"
+#include "ShaderProgram.h"
 
 class SceneObject
 {
@@ -19,6 +20,7 @@ private:
 	unsigned int vao = -1, positions_vbo = -1, ibo = -1, normals_vbo = -1;
 	unsigned int index_count = -1;
 	Transform transform{};
+	ShaderProgram shader;
 
 public: 
 	SceneObject(); // Empty Scene Object
@@ -35,7 +37,12 @@ public:
 	
 	SceneObject(std::string obj_file);
 
-	void Bind() const;
+	ShaderProgram& GetShader();
+
+	void SetPVM();
+
+	void Attach(ShaderProgram program);
+	void Bind();
 	void Unbind() const;
 	unsigned int GetCount() const;
 

@@ -24,9 +24,9 @@ void WindowSizeCallback(GLFWwindow* window, int width, int height);
 class Renderer
 {
 public:
-    void Draw(const SceneObject& obj);
+    void Draw(SceneObject& obj) const;
 
-    void Draw(GLenum mode, const SceneObject& obj);
+    void Draw(GLenum mode,SceneObject& obj) const;
 
     void Clear() const;
 };

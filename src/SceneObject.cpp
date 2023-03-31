@@ -1,5 +1,9 @@
 #include "SceneObject.h"
 
+#include "Camera.h"
+
+extern Camera camera;
+
 SceneObject::SceneObject() // Empty Object
 {
 }
@@ -29,13 +33,13 @@ glm::mat4 SceneObject::GetModel()
 }
 
 SceneObject::SceneObject(std::vector<glm::vec3>* vertexes, std::vector<unsigned int>* indexes)
-	:index_count(indexes->size())
+	:index_count((unsigned int)indexes->size())
 {
 	Populate(vertexes, indexes);
 }
 
 SceneObject::SceneObject(std::vector<glm::vec3>* vertexes, std::vector<unsigned int>* indexes, std::vector<glm::vec3>* normals)
-	:index_count(indexes->size())
+	:index_count((unsigned int)indexes->size())
 {
 	Populate(vertexes, indexes, normals);
 }
@@ -70,10 +74,12 @@ SceneObject::SceneObject(std::string obj_file)
 
 Transform& SceneObject::Transform() { return transform; }
 
-void SceneObject::Bind() const
+void SceneObject::Bind() 
 {
-    glBindVertexArray(vao);
+	//shader.Bind();
 
+	glBindVertexArray(vao);
+	//SetPVM()
 }
 
 void SceneObject::Unbind() const
@@ -92,4 +98,20 @@ void SceneObject::SetLayout(unsigned int index, unsigned int count, GLenum type,
 {
     glEnableVertexAttribArray(index);
     glVertexAttribPointer(index, count, type, GL_FALSE, stride, 0);
+}
+
+
+void SceneObject::Attach(ShaderProgram program)
+{
+	shader = program;
+}
+
+ShaderProgram& SceneObject::GetShader()
+{
+	return shader;
+}
+
+void SceneObject::SetPVM()
+{
+	shader.SetPVM(camera.GetProjection(), camera.GetView(), GetModel());
 }

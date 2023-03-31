@@ -4,6 +4,10 @@
 #include <sstream>
 #include <memory>
 
+static const std::string projection = "u_projection";
+static const std::string model = "u_model";
+static const std::string view = "u_view";
+
 ShaderProgram::ShaderProgram()
 {
 	program_id = glCreateProgram();
@@ -77,6 +81,28 @@ void ShaderProgram::LinkAndValidate()
         valid = true;
         PRINT_LOG(name << " shader program passed validation");
     }
+}
+
+void ShaderProgram::SetProjection(const glm::mat4& matrix)
+{
+    SetUniformMat4f(projection, matrix);
+}
+
+void ShaderProgram::SetView(const glm::mat4& matrix)
+{
+    SetUniformMat4f(view, matrix);
+}
+
+void ShaderProgram::SetModel(const glm::mat4& matrix)
+{
+    SetUniformMat4f(model, matrix);
+}
+
+void ShaderProgram::SetPVM(const glm::mat4& p, const glm::mat4& v, const glm::mat4& m)
+{
+    SetProjection(p);
+    SetView(v);
+    SetModel(m);
 }
 
 void ShaderProgram::SetUniformInt(const std::string& name, int integer)

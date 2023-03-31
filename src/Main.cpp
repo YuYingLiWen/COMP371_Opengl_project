@@ -62,7 +62,7 @@ int main(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(camera.width, camera.height, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(camera.width, camera.height, "Not Unity", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -156,7 +156,7 @@ int main(void)
 
     //// Perlin noise map
     auto terrain_data = tg.Generate(terrain_dimensions, glm::vec2((float)terrain_dimensions.x * 0.5f, (float)terrain_dimensions.y * 0.5f), terrain_dimensions.x * 0.5f, 50.0f);
-    SceneObject* map{};
+    SceneObject* map = nullptr;
     if (terrain_data)
     {
         map = new SceneObject(terrain_data->positions.get(), terrain_data->indexes.get(), terrain_data->normals.get());
@@ -257,12 +257,12 @@ int main(void)
         terrain_shader.Bind();
         terrain_shader.SetUniformMat4f("u_projection", projection);
         terrain_shader.SetUniformMat4f("u_view", view);
-        if (map != nullptr) terrain_shader.SetUniformMat4f("u_model", map->GetModel());
+        if (map) terrain_shader.SetUniformMat4f("u_model", map->GetModel());
         terrain_shader.SetUniformInt("u_use_wiremesh", WIREMESH_TOGGLE);
 
         terrain_shader.SetUniform3f("u_light", directional_light);
         terrain_shader.SetUniform4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
-        if(map != nullptr) renderer.Draw(*map);
+        if(map) renderer.Draw(*map);
 
         // Render ImGui on top of everything
         // Start the Dear ImGui frame

@@ -26,15 +26,22 @@ public:
 	void Bind() const;
 	void Unbind() const;
 
+	bool IsValid() const;
 	void Attach(const std::string& vs, const std::string& fs);
 
+	/// PVM
+	void SetProjection(const glm::mat4& matrix);
+	void SetView(const glm::mat4& matrix);
+	void SetModel(const glm::mat4& matrix);
+	void SetPVM(const glm::mat4& p, const glm::mat4& v, const glm::mat4& m);
+
+	/// Set Uniforms
 	void SetUniformInt(const std::string& name, int integer);
 	void SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
 	void SetUniform4f(const std::string& name, glm::vec4 v4);
 	void SetUniform3f(const std::string& name, float v0, float v1, float v2);
 	void SetUniform3f(const std::string& name, glm::vec3 v3);
 	void SetUniformMat4f(const std::string& name, const glm::mat4& matrix);
-	bool IsValid() const;
 private:
 	void LinkAndValidate();
 
