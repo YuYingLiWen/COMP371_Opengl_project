@@ -76,10 +76,14 @@ Transform& SceneObject::Transform() { return transform; }
 
 void SceneObject::Bind() 
 {
-	//shader.Bind();
+	/*if (shader)
+	{
+		shader->Bind();
+		SetPVM();
+	}*/
+		
 
 	glBindVertexArray(vao);
-	//SetPVM()
 }
 
 void SceneObject::Unbind() const
@@ -101,17 +105,17 @@ void SceneObject::SetLayout(unsigned int index, unsigned int count, GLenum type,
 }
 
 
-void SceneObject::Attach(ShaderProgram program)
+void SceneObject::Attach(ShaderProgram& program)
 {
-	shader = program;
+	shader = &program;
 }
 
-ShaderProgram& SceneObject::GetShader()
+ShaderProgram* SceneObject::GetShader()
 {
 	return shader;
 }
 
 void SceneObject::SetPVM()
 {
-	shader.SetPVM(camera.GetProjection(), camera.GetView(), GetModel());
+	shader->SetPVM(camera.GetProjection(), camera.GetView(), GetModel());
 }
