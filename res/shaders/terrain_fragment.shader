@@ -15,10 +15,16 @@ void main()
 {
 	if (!u_use_wiremesh)
 	{
-		//vec3 to_light = normalize(aFragPos - u_light);
-		float cos_angle = dot(aNormal, normalize(-u_light));
+		vec3 to_light = normalize(aFragPos - u_light);
 
-		FragColor = (u_color + u_color) * max(cos_angle, 0.0);
+		vec3 ambient = (aFragPos.y + 1.01) * u_color.xyz;
+
+		FragColor = vec4(ambient,1.0);
+
+
+		//float cos_angle = dot(aNormal, normalize(-u_light));
+
+		//FragColor = (u_color + u_color) * max(cos_angle, 0.0);
 	}
 	else // Wiremesh enabled
 	{

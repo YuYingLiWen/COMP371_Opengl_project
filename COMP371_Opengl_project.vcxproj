@@ -154,6 +154,7 @@
     <ClCompile Include="src\MeshGenerator.cpp" />
     <ClCompile Include="src\Transform.cpp" />
     <ClCompile Include="src\Terrain.cpp" />
+    <ClCompile Include="src\YuMath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Camera.h" />
@@ -176,6 +177,7 @@
     <ClInclude Include="src\MeshGenerator.h" />
     <ClInclude Include="src\Transform.h" />
     <ClInclude Include="src\Terrain.h" />
+    <ClInclude Include="src\YuMath.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

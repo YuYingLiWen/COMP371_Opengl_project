@@ -1,5 +1,4 @@
 #include "CustomRandom.h"
-#include "glm/glm.hpp"
 
 #include <random>
 #include <ctime>
@@ -19,42 +18,21 @@ CustomRandom& CustomRandom::GetInstance()
 	return instance;
 }
 
-double CustomRandom::Generate()
+float CustomRandom::Generate()
 {
 	return (float)rand() / (float)RAND_MAX;
 }
 
-double CustomRandom::Generate(double num)
+float CustomRandom::Generate(float num)
 {
-	return ((float)rand() / (float)RAND_MAX) * num * 2.0f - num;
+	return Generate() * num * 2.0f - num;
 }
 
-double CustomRandom::Noise(double x_off)
+glm::vec2 CustomRandom::RandomCircle()
 {
-	return std::sin(Deg2Rad * x_off);
+	float x = Generate(1.0f);
+	float y = Generate(1.0f);
+
+	return glm::vec2(x,y);
 }
 
-double CustomRandom::Noise(double x_off, double z_off)
-{
-	return std::sin(Deg2Rad * x_off);
-}
-
-double CustomRandom::CircleNoise(double x_off, double z_off)
-{
-	return CircleNoise(1.0f, 1.0f, 0.0f, 0.0f);
-}
-
-double CustomRandom::CircleNoise(double x_off, double z_off, double center_x, double center_z)
-{
-	return std::sin(Deg2Rad * std::sqrt(std::pow(x_off - center_x, 2.0f) + std::pow(z_off - center_z, 2.0f)));
-}
-
-double CustomRandom::LineNoise(double x_off, double z_off)
-{
-	return std::sin(Deg2Rad * (x_off + z_off));
-}
-
-double CustomRandom::BumpNoise(double x_off, double z_off)
-{
-	return std::sin(Deg2Rad * x_off) + std::sin(Deg2Rad * z_off);
-}

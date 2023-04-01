@@ -30,6 +30,8 @@
 
 
 static bool toggle_grid = true;
+static bool toggle_terrain_normal = true;
+
 
 Camera camera(780, 1280, 65.0f);
 
@@ -155,20 +157,23 @@ int main(void)
     MeshGenerator mg;
 
     //// Perlin noise map
-    auto terrain_data = tg.Generate(terrain_dimensions, glm::vec2((float)terrain_dimensions.x * 0.5f, (float)terrain_dimensions.y * 0.5f), terrain_dimensions.x * 0.5f, 50.0f);
-    SceneObject* map = nullptr;
+    auto terrain_data = tg.GeneratePerlinTerrain(terrain_dimensions.x, terrain_dimensions.y);//tg.Generate(terrain_dimensions, glm::vec2((float)terrain_dimensions.x * 0.5f, (float)terrain_dimensions.y * 0.5f), terrain_dimensions.x * 0.5f, 50.0f);
+    SceneObject* terrain = nullptr;
+    SceneObject* terrain_normals = nullptr;
     if (terrain_data)
     {
-        map = new SceneObject(terrain_data->positions.get(), terrain_data->indexes.get(), terrain_data->normals.get());
+        terrain = new SceneObject(terrain_data->positions.get(), terrain_data->indexes.get(), terrain_data->normals.get());
+        terrain_normals = new SceneObject(terrain_data->positions.get(), terrain_data->indexes.get(), terrain_data->normals.get());
+
     }
 
 
     //// Scene Grid
-    auto data2 = mg.GenerateGrid(300, 20);
+    auto grid_data = mg.GenerateGrid(300, 20);
     SceneObject* grid = nullptr;
-    if (data2)
+    if (grid_data)
     {
-        grid = new SceneObject(data2->positions.get(), data2->indexes.get());
+        grid = new SceneObject(grid_data->positions.get(), grid_data->indexes.get());
     }
 
     //End perlin noise map
@@ -221,7 +226,7 @@ int main(void)
 
         view = camera.GetView();
 
-
+        glm::vec2 val = CustomRandom::GetInstance().RandomCircle();
         /* Render here */
 
         if (toggle_grid)
@@ -254,15 +259,23 @@ int main(void)
         simple_shader.SetUniform4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
         renderer.Draw(cube2);
 
-        terrain_shader.Bind();
-        terrain_shader.SetUniformMat4f("u_projection", projection);
-        terrain_shader.SetUniformMat4f("u_view", view);
-        if (map) terrain_shader.SetUniformMat4f("u_model", map->GetModel());
-        terrain_shader.SetUniformInt("u_use_wiremesh", WIREMESH_TOGGLE);
+        if (terrain)
+        {
+            terrain_shader.Bind();
+            terrain_shader.SetUniformMat4f("u_projection", projection);
+            terrain_shader.SetUniformMat4f("u_view", view);
+            terrain_shader.SetUniformMat4f("u_model", terrain->GetModel());
+            terrain_shader.SetUniformInt("u_use_wiremesh", WIREMESH_TOGGLE);
+            terrain_shader.SetUniform3f("u_light", directional_light);
+            terrain_shader.SetUniform4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
+            renderer.Draw(*terrain);
 
-        terrain_shader.SetUniform3f("u_light", directional_light);
-        terrain_shader.SetUniform4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
-        if(map) renderer.Draw(*map);
+            if (toggle_terrain_normal)
+            {
+
+            }
+        }
+
 
         // Render ImGui on top of everything
         // Start the Dear ImGui frame
@@ -287,13 +300,13 @@ int main(void)
             ImGui::InputInt2("Terrain Dimension", glm::value_ptr(terrain_dimensions));
             if (ImGui::Button("Generate Terrain"))
             {
-                delete map;
+                delete terrain;
 
-                terrain_data = tg.Generate(terrain_dimensions, glm::vec2((float)terrain_dimensions.x * 0.5f, (float)terrain_dimensions.y * 0.5f), 100.0f, 50.0f);
+                terrain_data = tg.GeneratePerlinTerrain(terrain_dimensions.x, terrain_dimensions.y);//tg.Generate(terrain_dimensions, glm::vec2((float)terrain_dimensions.x * 0.5f, (float)terrain_dimensions.y * 0.5f), 100.0f, 50.0f);
 
                 if (terrain_data)
                 {
-                    map = new SceneObject(terrain_data->positions.get(), terrain_data->indexes.get(), terrain_data->normals.get());
+                    terrain = new SceneObject(terrain_data->positions.get(), terrain_data->indexes.get(), terrain_data->normals.get());
                 }
             }
 

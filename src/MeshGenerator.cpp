@@ -69,14 +69,16 @@ std::shared_ptr<Mesh> MeshGenerator::Generate(unsigned int x_count, unsigned int
     
     /// Generate Normals
     auto normals = std::make_shared<std::vector<glm::vec3>>();
-
+    glm::vec3 p0;
+    glm::vec3 p1;
+    glm::vec3 p2;
     for (size_t i = 0; i < indexes.get()->size(); i += 6)
     {
         //// A rectangle formed by 2 triangles
         // Triangle 1
-        glm::vec3 p0 = (*positions)[(*indexes)[i]];
-        glm::vec3 p1 = (*positions)[(*indexes)[i + 1]];
-        glm::vec3 p2 = (*positions)[(*indexes)[i + 2]];
+        p0 = (*positions)[(*indexes)[i]];
+        p1 = (*positions)[(*indexes)[i + 1]];
+        p2 = (*positions)[(*indexes)[i + 2]];
 
         normals.get()->push_back(glm::normalize(glm::cross(p2 - p0, p1 - p0)));
 
