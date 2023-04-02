@@ -17,7 +17,7 @@ void main()
 	{
 		vec3 to_light = normalize(aFragPos - u_light);
 
-		vec3 ambient = (aFragPos.y + 1.01) * u_color.xyz;
+		vec3 ambient = vec3(1, 1, 1);//(aFragPos.y + 1.01) * u_color.xyz;
 
 		FragColor = vec4(ambient,1.0);
 

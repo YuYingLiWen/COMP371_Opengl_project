@@ -1,4 +1,4 @@
-#include "Terrain.h"
+#include "TerrainGenerator.h"
 
 #include "YuMath.h"
 
@@ -10,7 +10,6 @@ TerrainGenerator::TerrainGenerator()
 
 TerrainGenerator::~TerrainGenerator()
 {
-
 }
 
 std::shared_ptr<Mesh> TerrainGenerator::Generate(TerrainType type, glm::i32vec2 dimensions, float freq)
@@ -90,19 +89,35 @@ std::vector<double>* TerrainGenerator::GenerateHeights(TerrainType type, glm::i3
 }
 
 
-std::shared_ptr<Mesh> TerrainGenerator::GeneratePerlinTerrain(double x, double z)
+std::shared_ptr<Mesh> TerrainGenerator::GeneratePerlinTerrain(unsigned int x, unsigned int z)
 {
     auto basic_mesh = MeshGenerator::Generate(x, z);
 
-    auto heights = PerlinNoise(x, z);
+    unsigned int px = 10;
+    unsigned int pz = 10;
 
-    unsigned int index = 0;
-    for (auto& position : *basic_mesh->positions)
+
+    GeneratePerlinNoiseGrid(px, pz);
+    
+
+    for (int i = 0; i < 1; i++)
     {
-        position.y = (heights.at(index));
+        for (auto& position : *basic_mesh->positions)
+        {
+            // Maps mesh to perlin grid
 
-        index++;
+            double x_ratio = ((double)(grid.GetX()) / (double)(x + 1u));
+            double z_ratio = ((double)(grid.GetZ()) / (double)(z + 1u));
+            double u = position.x * x_ratio;
+            double v = position.z * z_ratio;
+
+            // Do calculations
+            position.y += (PerlinNoise(u, v) );
+        }
     }
+
+
+
 
     return basic_mesh;
 }
@@ -143,53 +158,56 @@ double TerrainGenerator::Noise(double x_off)
     return glm::sin(glm::radians(x_off));
 }
 
-std::vector<float> TerrainGenerator::PerlinNoise(double x_off, double z_off)
+void TerrainGenerator::GeneratePerlinNoiseGrid(unsigned int grid_x, unsigned int grid_z)
 {
-    auto latice = std::vector<glm::vec2>();
-    auto heights = std::vector<float>();
+    grid.Generate(grid_x, grid_z);
+}
 
-    unsigned int x_size = x_off + 2;
-    unsigned int z_size = z_off + 2;
+float TerrainGenerator::PerlinNoise(double u, double v)
+{
+    /// Grid might be null. Check before calling this function.
+    auto& latice = grid.GetGrid();
+    
+    // Maps mesh position to grid position
 
-    for (size_t z = 0; z < z_size; z++) // Populate gradient field
-    {
-        for (size_t x = 0; x < x_size; x++)
-        {
-            latice.push_back(CustomRandom::GetInstance().RandomCircle());
-        }
-    }
+    unsigned int cell_u = (unsigned int)glm::floor(u);
+    unsigned int cell_v = (unsigned int)glm::floor(v);
 
-    for (size_t z = 0; z < z_size - 1; z++) // For each square
-    {
-        for (size_t x = 0; x < x_size - 1; x++)
-        {
-            glm::vec2 bot_left  = latice[x +    z    * x_size    ];
-            glm::vec2 top_left  = latice[x + (z + 1) * x_size    ];
-            glm::vec2 bot_right = latice[x +    z    * x_size + 1];
-            glm::vec2 top_right = latice[x + (z + 1) * x_size + 1];
+    glm::vec2 point = glm::vec2(u, v);
 
-            glm::vec2 grid_point = glm::vec2(glm::length(bot_right - bot_left) * 0.5f, glm::length(top_right - bot_right) * 0.5f);
+    glm::vec2 grid_bl = glm::vec2(cell_u, cell_v);
+    glm::vec2 grid_tl = glm::vec2(cell_u, cell_v + 1);
+    glm::vec2 grid_br = glm::vec2(cell_u + 1, cell_v);
+    glm::vec2 grid_tr = glm::vec2(cell_u + 1, cell_v + 1);
 
-            glm::vec2 to_bot_left  = bot_left  - grid_point;
-            glm::vec2 to_top_left  = top_left  - grid_point;
-            glm::vec2 to_bot_right = bot_right - grid_point;
-            glm::vec2 to_top_right = top_right - grid_point;
+    glm::vec2 to_bot_left =  point - grid_bl;
+    glm::vec2 to_top_left =  point - grid_tl;
+    glm::vec2 to_bot_right = point - grid_br;
+    glm::vec2 to_top_right = point - grid_tr;
 
-            float dot_tr = glm::dot(top_right, to_top_right);
-            float dot_tl = glm::dot(top_left, to_top_left);
-            float dot_br = glm::dot(bot_right, to_bot_right);
-            float dot_bl = glm::dot(bot_left, to_bot_left);
+    int i_bl = cell_u +     cell_v       * (grid.GetX() + 1);
+    int i_br = cell_u + 1 + cell_v       * (grid.GetX() + 1);
+    int i_tl = cell_u +     (cell_v + 1) * (grid.GetX() + 1);
+    int i_tr = cell_u + 1 + (cell_v + 1) * (grid.GetX() + 1);
 
+    glm::vec2 grad_bot_left = latice.at(i_bl);
+    glm::vec2 grad_bot_right = latice.at(i_br);
+    glm::vec2 grad_top_left = latice.at(i_tl);
+    glm::vec2 grad_top_right = latice.at(i_tr);
 
-            float l1 = YuMath::Lerp(dot_bl, dot_tl, 0.5f);
-            float l2 = YuMath::Lerp(dot_br, dot_tr, 0.5f);
+    double dot_tr = glm::dot(grad_top_right, to_top_right);
+    double dot_tl = glm::dot(grad_top_left , to_top_left );
+    double dot_br = glm::dot(grad_bot_right, to_bot_right);
+    double dot_bl = glm::dot(grad_bot_left , to_bot_left );
+    
+    // Normalize to cell
+    double ut = u - (double)cell_u;
+    double vt = v - (double)cell_v;
 
+    double l1 = YuMath::Lerp(dot_bl, dot_br, ut);
+    double l2 = YuMath::Lerp(dot_tl, dot_tr, ut);
 
-            heights.push_back(YuMath::Lerp(l1, l2, 0.5f));
-        }
-    }
-
-    return heights;
+    return YuMath::Lerp(l1, l2, vt);
 }
 
 double TerrainGenerator::CirclePattern(double x_off, double z_off)
@@ -212,3 +230,35 @@ double TerrainGenerator::BumpPattern(double x_off, double z_off)
 {
     return glm::sin(glm::radians(x_off)) + glm::sin(glm::radians(z_off));
 }
+
+
+
+//// Perlin Grid
+
+void PerlinGrid::Generate(unsigned int x, unsigned int z)
+{
+    this->x = x;
+    this->z = z;
+
+    grid.clear();
+
+    for (size_t z = 0; z < (PerlinGrid::z + 1ull); z++) // Populate gradient field
+    {
+        for (size_t x = 0; x < (PerlinGrid::x + 1ull); x++)
+        {
+            grid.push_back(CustomRandom::GetInstance().RandomCircle() * 50.0f);
+        }
+    }
+}
+
+unsigned int PerlinGrid::GetX()
+{
+    return x;
+}
+
+unsigned int PerlinGrid::GetZ()
+{
+    return z;
+}
+
+std::vector<glm::vec2>& PerlinGrid::GetGrid() { return grid; }

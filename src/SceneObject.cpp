@@ -23,9 +23,9 @@ glm::mat4 SceneObject::GetModel()
 
     mat = glm::translate(mat, transform.Position());
 
-    mat = glm::rotate(mat, glm::radians(transform.Rotation().x), glm::vec3(1.0f, 0.0f, 0.0f));
-    mat = glm::rotate(mat, glm::radians(transform.Rotation().y), glm::vec3(0.0f, 1.0f, 0.0f));
-    mat = glm::rotate(mat, glm::radians(transform.Rotation().z), glm::vec3(0.0f, 0.0f, 1.0f));
+    mat = glm::rotate(mat, glm::radians(transform.Rotation().x), RIGHT);
+    mat = glm::rotate(mat, glm::radians(transform.Rotation().y), UP);
+    mat = glm::rotate(mat, glm::radians(transform.Rotation().z), FORWARD);
 
     mat = glm::scale(mat, transform.Scale());
 

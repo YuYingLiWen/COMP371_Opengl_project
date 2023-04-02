@@ -26,7 +26,7 @@
 #include "MeshGenerator.h"
 #include "AppTime.h"
 
-#include <Terrain.h>
+#include "TerrainGenerator.h"
 
 
 static bool toggle_grid = true;
@@ -164,7 +164,8 @@ int main(void)
     {
         terrain = new SceneObject(terrain_data->positions.get(), terrain_data->indexes.get(), terrain_data->normals.get());
         terrain_normals = new SceneObject(terrain_data->positions.get(), terrain_data->indexes.get(), terrain_data->normals.get());
-
+        terrain->Transform().Translate(LEFT * (terrain_dimensions.x * 0.5f));
+        terrain->Transform().Translate(BACK * (terrain_dimensions.y * 0.5f));
     }
 
 
@@ -174,6 +175,8 @@ int main(void)
     if (grid_data)
     {
         grid = new SceneObject(grid_data->positions.get(), grid_data->indexes.get());
+        grid->Transform().Translate(LEFT * 150.0f * 10.0f);
+        grid->Transform().Translate(BACK * 150.0f * 10.0f);
     }
 
     //End perlin noise map
@@ -195,6 +198,7 @@ int main(void)
 
     glm::mat4 projection = camera.GetProjection();
     glm::mat4 view;
+    float rotation = 0.0f;
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -224,6 +228,7 @@ int main(void)
         renderer.Clear();
         camera.UserInputs(window);
 
+        camera.GetTransform().SetRotation(RIGHT* rotation + UP * camera.GetTransform().Rotation().y + FORWARD * camera.GetTransform().Rotation().z);
         view = camera.GetView();
 
         glm::vec2 val = CustomRandom::GetInstance().RandomCircle();
@@ -235,10 +240,8 @@ int main(void)
             grid_shader.SetUniformMat4f("u_projection", projection);
             grid_shader.SetUniformMat4f("u_view", view);
             if (grid != nullptr) grid_shader.SetUniformMat4f("u_model", grid->GetModel());
-            if (grid != nullptr)
-            {
-                renderer.Draw(GL_LINES, *grid);
-            }
+            if (grid != nullptr) renderer.Draw(GL_LINES, *grid);
+
         }
 
 
@@ -266,7 +269,7 @@ int main(void)
             terrain_shader.SetUniformMat4f("u_view", view);
             terrain_shader.SetUniformMat4f("u_model", terrain->GetModel());
             terrain_shader.SetUniformInt("u_use_wiremesh", WIREMESH_TOGGLE);
-            terrain_shader.SetUniform3f("u_light", directional_light);
+            //terrain_shader.SetUniform3f("u_light", directional_light);
             terrain_shader.SetUniform4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
             renderer.Draw(*terrain);
 
@@ -294,6 +297,8 @@ int main(void)
             ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
             ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
 
+            ImGui::SliderFloat("Camera Pitch", &rotation, -180.0f, 180.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+
             ImGui::SliderFloat("Keyboard Move Speed", &camera.GetKeySpeed(), 0.0f, 100.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
             ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
@@ -307,6 +312,8 @@ int main(void)
                 if (terrain_data)
                 {
                     terrain = new SceneObject(terrain_data->positions.get(), terrain_data->indexes.get(), terrain_data->normals.get());
+                    terrain->Transform().Translate(LEFT * (terrain_dimensions.x * 0.5f));
+                    terrain->Transform().Translate(BACK * (terrain_dimensions.y * 0.5f));
                 }
             }
 

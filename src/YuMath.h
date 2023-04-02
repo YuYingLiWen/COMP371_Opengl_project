@@ -30,6 +30,7 @@ namespace YuMath
 
 	template<typename T>
 	T Lerp(T from, T to, T t) { return from + t * (to - from); }
+
 }
 
 #endif

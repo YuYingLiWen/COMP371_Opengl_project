@@ -30,6 +30,11 @@ float CustomRandom::Generate(float num)
 
 glm::vec2 CustomRandom::RandomCircle()
 {
+	//float theta = Generate() * 360.0f;
+
+	//float x = glm::sin(glm::radians(theta));
+	//float y = glm::cos(glm::radians(theta));
+
 	float x = Generate(1.0f);
 	float y = Generate(1.0f);
 

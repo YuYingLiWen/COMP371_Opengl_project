@@ -29,6 +29,8 @@ public:
 	static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void ResetCamera(Camera&);
 
+	Transform& GetTransform();
+
 public:
 
 	unsigned int height;

@@ -5,6 +5,14 @@
 
 #include "Utils.h"
 
+#define UP			glm::vec3(0.0f,1.0f,0.0f)
+#define DOWN		-UP
+#define RIGHT		glm::vec3(1.0f,0.0f,0.0f)
+#define LEFT		-RIGHT
+#define FORWARD		glm::vec3(0.0f,0.0f,1.0f)
+#define BACK		-FORWARD
+
+
 class Transform
 {
 public:

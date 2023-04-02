@@ -67,6 +67,7 @@ float Camera::AspectRatio() const { return aspect_ratio; }
 glm::mat4 Camera::GetView()
 {
     matrix = transform.LookAt();
+
     matrix = glm::rotate(matrix, glm::radians(transform.Rotation().x), glm::vec3(1.0f, 0.0f, 0.0f));
     matrix = glm::rotate(matrix, glm::radians(transform.Rotation().y), glm::vec3(0.0f, 1.0f, 0.0f));
     matrix = glm::rotate(matrix, glm::radians(transform.Rotation().z), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -83,6 +84,11 @@ void Camera::ResetCamera(Camera& camera)
 {
     camera.transform.SetRotation(DEFAULT_CAMERA_ROTATION);
     camera.transform.SetPosition(DEFAULT_CAMERA_POSITION);
+}
+
+Transform& Camera::GetTransform()
+{
+    return transform;
 }
 
 void Camera::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -151,11 +157,11 @@ void Camera::UserInputs(GLFWwindow* window)
 
     if (Q_IS_HELD)
     {
-        camera.transform.Rotate(-rot_degree * rot_speed * AppTime::DeltaTime(), glm::vec3(0.0f, 1.0f, 0.0f));
+        camera.transform.Rotate(rot_degree * rot_speed * AppTime::DeltaTime(), glm::vec3(0.0f, 1.0f, 0.0f));
     }
     if (E_IS_HELD)
     {
-        camera.transform.Rotate(rot_degree * rot_speed * AppTime::DeltaTime(), glm::vec3(0.0f, 1.0f, 0.0f));
+        camera.transform.Rotate(-rot_degree * rot_speed * AppTime::DeltaTime(), glm::vec3(0.0f, 1.0f, 0.0f));
     }
 }
 

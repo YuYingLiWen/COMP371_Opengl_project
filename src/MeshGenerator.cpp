@@ -31,8 +31,7 @@ std::shared_ptr<Mesh> MeshGenerator::Generate(unsigned int x_count, unsigned int
     /// Generate Positions
     auto positions = std::make_shared<std::vector<glm::vec3>>();
 
-    float half_x = size_x * 0.5f;
-    float half_z = size_z * 0.5f;
+
 
     for (size_t z = 0; z < size_z; z++)
     {
@@ -40,9 +39,9 @@ std::shared_ptr<Mesh> MeshGenerator::Generate(unsigned int x_count, unsigned int
         {
             positions->push_back(
                 glm::vec3(
-                    (float)x - half_x, 
+                    (float)x , 
                     0.0f,
-                    (float)z - half_z)
+                    (float)z )
             );
         }
     }
@@ -102,9 +101,6 @@ std::shared_ptr<Mesh> MeshGenerator::GenerateGrid(unsigned int size, float sprea
     /// Generate Positions
     auto positions = std::make_shared<std::vector<glm::vec3>>();
 
-    float half_size = length * spread * 0.5f;
-
-
     double z_inc = 0.0f;
     for (size_t z = 0; z < length; z++)
     {
@@ -114,9 +110,9 @@ std::shared_ptr<Mesh> MeshGenerator::GenerateGrid(unsigned int size, float sprea
         {
             positions->push_back(
                 glm::vec3(
-                    (float)x_inc - half_size, 
+                    (float)x_inc, 
                     0.0f,
-                    (float)z_inc - half_size)
+                    (float)z_inc)
             );
             x_inc += spread;
         }
