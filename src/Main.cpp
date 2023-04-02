@@ -36,7 +36,11 @@ static bool toggle_terrain_normal = true;
 Camera camera(780, 1280, 65.0f);
 
 
-glm::i32vec2 terrain_dimensions(100, 100);
+glm::i32vec2 terrain_dimensions(50, 100);
+int iter = 2;
+float amplitude = 30.0f;
+int split = 2;
+
 
 extern bool WIREMESH_TOGGLE;
 
@@ -157,7 +161,7 @@ int main(void)
     MeshGenerator mg;
 
     //// Perlin noise map
-    auto terrain_data = tg.GeneratePerlinTerrain(terrain_dimensions.x, terrain_dimensions.y);//tg.Generate(terrain_dimensions, glm::vec2((float)terrain_dimensions.x * 0.5f, (float)terrain_dimensions.y * 0.5f), terrain_dimensions.x * 0.5f, 50.0f);
+    auto terrain_data = tg.GeneratePerlinTerrain(terrain_dimensions.x, terrain_dimensions.y, iter, amplitude, split);//tg.Generate(terrain_dimensions, glm::vec2((float)terrain_dimensions.x * 0.5f, (float)terrain_dimensions.y * 0.5f), terrain_dimensions.x * 0.5f, 50.0f);
     SceneObject* terrain = nullptr;
     SceneObject* terrain_normals = nullptr;
     if (terrain_data)
@@ -294,40 +298,64 @@ int main(void)
         {
             ImGui::Begin("DEBUG");                          // Create a window called "Hello, world!" and append into it.
 
-            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
             ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
 
-            ImGui::SliderFloat("Camera Pitch", &rotation, -180.0f, 180.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-
-            ImGui::SliderFloat("Keyboard Move Speed", &camera.GetKeySpeed(), 0.0f, 100.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-            ImGui::InputInt2("Terrain Dimension", glm::value_ptr(terrain_dimensions));
-            if (ImGui::Button("Generate Terrain"))
+            if (ImGui::CollapsingHeader("Keyboard & Camera Controls"))
             {
-                delete terrain;
+                ImGui::SeparatorText("Camera");
 
-                terrain_data = tg.GeneratePerlinTerrain(terrain_dimensions.x, terrain_dimensions.y);//tg.Generate(terrain_dimensions, glm::vec2((float)terrain_dimensions.x * 0.5f, (float)terrain_dimensions.y * 0.5f), 100.0f, 50.0f);
+                ImGui::SliderFloat("Camera Pitch", &rotation, -180.0f, 180.0f);
+                if (ImGui::Button("Reset Camera"))
+                    Camera::ResetCamera(camera);
+                ImGui::SameLine(); ImGui::Text("Resets Camera To Default Values");
 
-                if (terrain_data)
+                ImGui::SeparatorText("Keyboard");
+
+                ImGui::SliderFloat("Keyboard Move Speed", &camera.GetKeySpeed(), 0.0f, 100.0f);
+                ImGui::NewLine();
+            }
+       
+
+            if (ImGui::CollapsingHeader("Terrain Controls"))
+            {
+                ImGui::SliderInt("Gradient Grid Division", &split, 1, 10);
+                ImGui::SliderFloat("Amplitude", &amplitude, 0.0f, 100.0f);
+                ImGui::SliderInt("Iteration", &iter, 1, 100);
+
+                ImGui::InputInt2("Terrain Dimension", glm::value_ptr(terrain_dimensions));
+
+                if (ImGui::Button("Generate Terrain"))
                 {
-                    terrain = new SceneObject(terrain_data->positions.get(), terrain_data->indexes.get(), terrain_data->normals.get());
-                    terrain->Transform().Translate(LEFT * (terrain_dimensions.x * 0.5f));
-                    terrain->Transform().Translate(BACK * (terrain_dimensions.y * 0.5f));
+                    delete terrain;
+
+                    terrain_data = tg.GeneratePerlinTerrain(terrain_dimensions.x, terrain_dimensions.y, iter, amplitude, split);//tg.Generate(terrain_dimensions, glm::vec2((float)terrain_dimensions.x * 0.5f, (float)terrain_dimensions.y * 0.5f), 100.0f, 50.0f);
+
+                    if (terrain_data)
+                    {
+                        terrain = new SceneObject(terrain_data->positions.get(), terrain_data->indexes.get(), terrain_data->normals.get());
+                        terrain->Transform().Translate(LEFT * (terrain_dimensions.x * 0.5f));
+                        terrain->Transform().Translate(BACK * (terrain_dimensions.y * 0.5f));
+                    }
                 }
+                ImGui::NewLine();
             }
 
-            ImGui::DragFloat3("Directional Light", glm::value_ptr(directional_light), 0.01f, -100.0f, 100.0f);
+            if (ImGui::CollapsingHeader("Others"))
+            {
+                ImGui::ColorEdit3("clear color", (float*)&clear_color);
 
-            if (ImGui::Button("Toggle Grid"))                           
-                toggle_grid = !toggle_grid;
-            ImGui::SameLine(); ImGui::Text("Toggles World Grid ON/OFF");
+                ImGui::DragFloat3("Directional Light", glm::value_ptr(directional_light), 0.01f, -100.0f, 100.0f);
 
-            if (ImGui::Button("Reset Camera"))                           
-                Camera::ResetCamera(camera);
-            ImGui::SameLine(); ImGui::Text("same line example");
+                if (ImGui::Button("Toggle Grid"))
+                    toggle_grid = !toggle_grid;
+                ImGui::SameLine(); ImGui::Text("Toggles World Grid ON/OFF");
+                ImGui::NewLine();
+            }
+
+
+
             
-
+            ImGui::NewLine();
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
             ImGui::End();
         }

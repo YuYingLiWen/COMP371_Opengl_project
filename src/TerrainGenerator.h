@@ -14,7 +14,7 @@ static class PerlinGrid
 {
 public:
 
-	void Generate(unsigned int x, unsigned int z);
+	void Generate(unsigned int x, unsigned int z, float amplitude);
 
 	unsigned int GetX();
 	unsigned int GetZ();
@@ -35,7 +35,7 @@ public:
 	std::shared_ptr<Mesh> Generate(TerrainType type, glm::i32vec2 dimensions, float freq);
 	std::shared_ptr<Mesh> Generate(glm::i32vec2 dimensions, glm::vec2 center, float radius, float freq);
 	std::shared_ptr<Mesh> Generate(TerrainType type, unsigned int x, unsigned int z, float freq);
-	std::shared_ptr<Mesh> GeneratePerlinTerrain(unsigned int x, unsigned int z);
+	std::shared_ptr<Mesh> GeneratePerlinTerrain(unsigned int x, unsigned int z, unsigned int iter, float amplitude, unsigned int split);
 
 
 private:
@@ -45,7 +45,6 @@ private:
 
 private:
 	double Noise(double x_off);
-	void GeneratePerlinNoiseGrid(unsigned int grid_x, unsigned int grid_z);
 	float PerlinNoise(double pos_x, double pos_z);
 	double CirclePattern(double x_off, double z_off, double center_x, double center_z);
 	double CirclePattern(double center_x, double center_z);
