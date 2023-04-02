@@ -29,7 +29,7 @@ namespace YuMath
 	float TriangleArea(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3);
 
 	template<typename T>
-	T Lerp(T from, T to, T t) { return from + t * (to - from); }
+	T Lerp(T from, T to, float t) { return from + t * (to - from); }
 
 }
 

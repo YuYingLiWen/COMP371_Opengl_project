@@ -248,7 +248,6 @@ int main(void)
 
         }
 
-
         simple_shader.Bind();
         cube1.Transform().Rotate(glm::radians(15.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         simple_shader.SetUniformMat4f("u_projection", projection);
@@ -273,7 +272,9 @@ int main(void)
             terrain_shader.SetUniformMat4f("u_view", view);
             terrain_shader.SetUniformMat4f("u_model", terrain->GetModel());
             terrain_shader.SetUniformInt("u_use_wiremesh", WIREMESH_TOGGLE);
-            //terrain_shader.SetUniform3f("u_light", directional_light);
+            //terrain_shader.SetUniformFloat("u_time", AppTime::Time());
+
+            terrain_shader.SetUniform3f("u_light", directional_light);
             terrain_shader.SetUniform4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
             renderer.Draw(*terrain);
 

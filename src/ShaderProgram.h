@@ -37,6 +37,7 @@ public:
 
 	/// Set Uniforms
 	void SetUniformInt(const std::string& name, int integer);
+	void SetUniformFloat(const std::string& name, float fp);
 	void SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
 	void SetUniform4f(const std::string& name, glm::vec4 v4);
 	void SetUniform3f(const std::string& name, float v0, float v1, float v2);

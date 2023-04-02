@@ -115,6 +115,16 @@ void ShaderProgram::SetUniformInt(const std::string& name, int integer)
     }
 }
 
+void ShaderProgram::SetUniformFloat(const std::string& name, float fp)
+{
+    int location = glGetUniformLocation(program_id, name.c_str());
+
+    if (GetUniformLocation(name, location))
+    {
+        glUniform1f(location, fp);
+    }
+}
+
 
 void ShaderProgram::SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3)
 {
