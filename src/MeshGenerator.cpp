@@ -89,7 +89,7 @@ std::shared_ptr<Mesh> MeshGenerator::Generate(unsigned int x_count, unsigned int
         normals.get()->push_back(glm::normalize(glm::cross(p2 - p0, p1 - p0)));
     }
 
-    return std::make_shared<Mesh>(Mesh { positions, indexes, normals });
+    return std::make_shared<Mesh>(Mesh { positions, indexes, normals, glm::i32vec2(size_x, size_z)});
 }
 
 std::shared_ptr<Mesh> MeshGenerator::GenerateGrid(unsigned int size, float spread)

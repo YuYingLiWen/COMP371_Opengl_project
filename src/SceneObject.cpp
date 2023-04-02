@@ -33,13 +33,13 @@ glm::mat4 SceneObject::GetModel()
 }
 
 SceneObject::SceneObject(std::vector<glm::vec3>* vertexes, std::vector<unsigned int>* indexes)
-	:index_count((unsigned int)indexes->size())
+	:ibo_size((unsigned int)indexes->size())
 {
 	Populate(vertexes, indexes);
 }
 
 SceneObject::SceneObject(std::vector<glm::vec3>* vertexes, std::vector<unsigned int>* indexes, std::vector<glm::vec3>* normals)
-	:index_count((unsigned int)indexes->size())
+	:ibo_size((unsigned int)indexes->size())
 {
 	Populate(vertexes, indexes, normals);
 }
@@ -65,11 +65,30 @@ void SceneObject::Populate(std::vector<glm::vec3>* positions, std::vector<unsign
 	glGenBuffers(1, &ibo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexes->size() * sizeof(unsigned int), &(*indexes)[0], GL_STATIC_DRAW);
+
 }
 
+void SceneObject::UpdatePositions(std::vector<glm::vec3> positions)
+{
+	glBindVertexArray(vao);
+
+	glDeleteBuffers(1, &positions_vbo);
+	
+	glGenBuffers(1, &positions_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, positions_vbo);
+	glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3), &(positions)[0], GL_STATIC_DRAW);
+	SetLayout(0, 3, GL_FLOAT, sizeof(glm::vec3));
+}
 
 SceneObject::SceneObject(std::string obj_file)
 {
+}
+
+std::shared_ptr<glm::vec3[]> SceneObject::GetPositions()
+{
+	std::shared_ptr<glm::vec3[]> size(new glm::vec3[positions_vbo_size]);
+	glGetBufferSubData(GL_ARRAY_BUFFER, 0, positions_vbo_size, size.get());
+	return size;
 }
 
 Transform& SceneObject::Transform() { return transform; }
@@ -95,7 +114,7 @@ void SceneObject::Unbind() const
 
 unsigned int SceneObject::GetCount() const
 {
-    return index_count;
+    return ibo_size;
 }
 
 void SceneObject::SetLayout(unsigned int index, unsigned int count, GLenum type, unsigned int stride)

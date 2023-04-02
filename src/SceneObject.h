@@ -17,14 +17,23 @@
 class SceneObject
 {
 private:
-	unsigned int vao = -1, positions_vbo = -1, ibo = -1, normals_vbo = -1;
-	unsigned int index_count = -1;
+	unsigned int vao = -1;
 	Transform transform{};
 	ShaderProgram* shader = nullptr;
 
+private:
+	unsigned int positions_vbo = -1;
+	unsigned int positions_vbo_size;
+
+	unsigned int normals_vbo = -1;
+	unsigned int normals_vbo_size;
+
+	unsigned int ibo = -1;
+	unsigned int ibo_size;
+
 public: 
-	SceneObject(); // Empty Scene Object
-	~SceneObject();
+	SceneObject();
+	virtual ~SceneObject();
 
 	Transform& Transform();
 
@@ -33,13 +42,17 @@ public:
 	SceneObject(std::vector<glm::vec3>* vertexes, std::vector<unsigned int>* indexes);
 	SceneObject(std::vector<glm::vec3>* vertexes, std::vector<unsigned int>* indexes, std::vector<glm::vec3>* normals);
 
-	void Populate(std::vector<glm::vec3>* positions, std::vector<unsigned int>* indexes, std::vector<glm::vec3>* normals = nullptr);
 	
 	SceneObject(std::string obj_file);
+
+	void UpdatePositions(std::vector<glm::vec3> vertexes);
+	std::shared_ptr<glm::vec3[]> GetPositions();
 
 	ShaderProgram* GetShader();
 
 	void SetPVM();
+
+
 
 	void Attach(ShaderProgram& program);
 	void Bind();
@@ -47,6 +60,8 @@ public:
 	unsigned int GetCount() const;
 
 private:
+	void Populate(std::vector<glm::vec3>* positions, std::vector<unsigned int>* indexes, std::vector<glm::vec3>* normals = nullptr);
+
 	void SetLayout(unsigned int index, unsigned int count, GLenum type, unsigned int stride);
 };
 

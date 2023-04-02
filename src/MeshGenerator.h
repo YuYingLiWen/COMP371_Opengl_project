@@ -12,6 +12,7 @@ struct Mesh
 	std::shared_ptr<std::vector<glm::vec3>> positions;
 	std::shared_ptr<std::vector<unsigned int>> indexes;
 	std::shared_ptr<std::vector<glm::vec3>> normals;
+	glm::i32vec2 size;
 };
 
 class MeshGenerator

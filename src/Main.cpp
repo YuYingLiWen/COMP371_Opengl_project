@@ -27,6 +27,7 @@
 #include "AppTime.h"
 
 #include "TerrainGenerator.h"
+#include "TerrainObject.h"
 
 
 static bool toggle_grid = true;
@@ -36,9 +37,9 @@ static bool toggle_terrain_normal = true;
 Camera camera(780, 1280, 65.0f);
 
 
-glm::i32vec2 terrain_dimensions(50, 100);
-int iter = 2;
-float amplitude = 30.0f;
+glm::i32vec2 terrain_dimensions(100, 100);
+int iter = 3;
+float amplitude = 40.0f;
 int split = 2;
 
 
@@ -162,10 +163,14 @@ int main(void)
 
     //// Perlin noise map
     auto terrain_data = tg.GeneratePerlinTerrain(terrain_dimensions.x, terrain_dimensions.y, iter, amplitude, split);//tg.Generate(terrain_dimensions, glm::vec2((float)terrain_dimensions.x * 0.5f, (float)terrain_dimensions.y * 0.5f), terrain_dimensions.x * 0.5f, 50.0f);
+    auto base_mesh = mg.Generate(terrain_dimensions);
+    TerrainObject* terrain2 = nullptr;
     SceneObject* terrain = nullptr;
     SceneObject* terrain_normals = nullptr;
     if (terrain_data)
     {
+        terrain2 = new TerrainObject(terrain_data, base_mesh->positions.get());
+
         terrain = new SceneObject(terrain_data->positions.get(), terrain_data->indexes.get(), terrain_data->normals.get());
         terrain_normals = new SceneObject(terrain_data->positions.get(), terrain_data->indexes.get(), terrain_data->normals.get());
         terrain->Transform().Translate(LEFT * (terrain_dimensions.x * 0.5f));
@@ -265,7 +270,26 @@ int main(void)
         simple_shader.SetUniform4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
         renderer.Draw(cube2);
 
-        if (terrain)
+        //if (terrain)
+        //{
+        //    terrain_shader.Bind();
+        //    terrain_shader.SetUniformMat4f("u_projection", projection);
+        //    terrain_shader.SetUniformMat4f("u_view", view);
+        //    terrain_shader.SetUniformMat4f("u_model", terrain->GetModel());
+        //    terrain_shader.SetUniformInt("u_use_wiremesh", WIREMESH_TOGGLE);
+        //    //terrain_shader.SetUniformFloat("u_time", AppTime::Time());
+
+        //    terrain_shader.SetUniform3f("u_light", directional_light);
+        //    terrain_shader.SetUniform4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
+        //    renderer.Draw(*terrain);
+
+        //    if (toggle_terrain_normal)
+        //    {
+
+        //    }
+        //}
+
+        if (terrain2)
         {
             terrain_shader.Bind();
             terrain_shader.SetUniformMat4f("u_projection", projection);
@@ -276,12 +300,9 @@ int main(void)
 
             terrain_shader.SetUniform3f("u_light", directional_light);
             terrain_shader.SetUniform4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
-            renderer.Draw(*terrain);
+            renderer.Draw(*terrain2);
+            terrain2->LerpTo();
 
-            if (toggle_terrain_normal)
-            {
-
-            }
         }
 
 
