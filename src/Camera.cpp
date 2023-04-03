@@ -22,8 +22,8 @@ static glm::dvec2 mouse_pos;
 
 // Camera
 extern Camera camera;
-#define DEFAULT_CAMERA_ROTATION glm::vec3(35.0f, 0.0f, 0.0f)
-#define DEFAULT_CAMERA_POSITION glm::vec3(0.0f, 0.0f, 100.0f)
+#define DEFAULT_CAMERA_ROTATION glm::vec3(30.0f, 0.0f, 0.0f)
+#define DEFAULT_CAMERA_POSITION glm::vec3(0.0f, 0.0f, 200.0f)
 static float far_plane = 1000.0f;
 
 
@@ -80,7 +80,7 @@ glm::mat4 Camera::GetProjection() const
 	return glm::perspective(glm::radians(fov), aspect_ratio, 0.1f, far_plane);
 }
 
-void Camera::ResetCamera(Camera& camera)
+void Camera::Reset(Camera& camera)
 {
     camera.transform.SetRotation(DEFAULT_CAMERA_ROTATION);
     camera.transform.SetPosition(DEFAULT_CAMERA_POSITION);

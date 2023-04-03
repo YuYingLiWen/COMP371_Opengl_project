@@ -27,7 +27,7 @@ public:
 
 	static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 	static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-	static void ResetCamera(Camera&);
+	static void Reset(Camera&);
 
 	Transform& GetTransform();
 

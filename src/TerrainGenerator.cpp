@@ -88,7 +88,6 @@ std::vector<double>* TerrainGenerator::GenerateHeights(TerrainType type, glm::i3
     return heights;
 }
 
-
 std::shared_ptr<Mesh> TerrainGenerator::GeneratePerlinTerrain(unsigned int x, unsigned int z, unsigned int iter, float amplitude, unsigned int split)
 {
     auto basic_mesh = MeshGenerator::Generate(x, z);
