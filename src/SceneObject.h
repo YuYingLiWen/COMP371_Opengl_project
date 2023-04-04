@@ -23,13 +23,13 @@ private:
 
 private:
 	unsigned int positions_vbo = -1;
-	unsigned int positions_vbo_size;
+	unsigned int positions_vbo_size = 0;
 
 	unsigned int normals_vbo = -1;
-	unsigned int normals_vbo_size;
+	unsigned int normals_vbo_size = 0;
 
 	unsigned int ibo = -1;
-	unsigned int ibo_size;
+	unsigned int ibo_size = 0;
 
 public: 
 	SceneObject();

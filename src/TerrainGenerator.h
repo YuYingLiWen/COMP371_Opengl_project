@@ -10,7 +10,7 @@ enum TerrainType
 	LINES, BUMP, PERLIN
 };
 
-static class PerlinGrid
+class PerlinGrid
 {
 public:
 

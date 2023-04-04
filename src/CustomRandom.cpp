@@ -41,3 +41,23 @@ glm::vec2 CustomRandom::RandomCircle()
 	return glm::vec2(x,y);
 }
 
+// Returns: angle in radian
+float CustomRandom::GenerateAngle(double angle)
+{
+	// Goes from 0 to angle.
+	return Generate() * angle * Deg2Rad;
+}
+
+glm::vec3 CustomRandom::RandomSphere()
+{
+	double tetha = GenerateAngle(360.0f);
+	double phi = GenerateAngle(360.0f);
+
+	glm::vec3 rand_vector(
+		std::sin(tetha) * std::cos(phi),
+		std::sin(tetha) * std::sin(phi),
+		std::cos(tetha)
+	);
+	return rand_vector;
+}
+

@@ -1,7 +1,6 @@
 
 #include <memory>
 #include <cstdio>
-#include <unordered_set>
 
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_impl_glfw.h"
@@ -29,6 +28,8 @@
 #include "TerrainGenerator.h"
 #include "TerrainObject.h"
 
+#include "ParticleSystem.h"
+
 static bool toggle_grid = true;
 static bool toggle_terrain_normal = true;
 
@@ -40,6 +41,9 @@ glm::i32vec2 terrain_dimensions(200, 200);
 int iter = 7;
 float amplitude = 70.0f;
 int split = 8;
+
+
+
 
 
 extern bool WIREMESH_TOGGLE;
@@ -195,7 +199,8 @@ int main(void)
     ShaderProgram grid_shader;
     grid_shader.Attach("res\\shaders\\grid_vs.shader", "res\\shaders\\grid_fs.shader");
 
-
+    ParticleSystem ps;
+    ps.Play();
 
     Renderer renderer;
 
@@ -244,6 +249,7 @@ int main(void)
 
         renderer.Clear();
 
+        ps.Emit();
 
         if (rotate_around)
         {
@@ -337,6 +343,8 @@ int main(void)
             renderer.Draw(*terrain2);
         }
 
+        ps.Update();
+
 
         // Render ImGui on top of everything
         // Start the Dear ImGui frame
@@ -395,10 +403,19 @@ int main(void)
                 ImGui::SameLine(); ImGui::Text("Toggles World Grid ON/OFF");
                 ImGui::NewLine();
             }
-
+            
             ImGui::NewLine();
+            ImGui::SeparatorText("App Data");
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
             ImGui::Text("Delta Time: %.5f sec", AppTime::DeltaTime());
+            
+            ImGui::NewLine();
+            ImGui::SeparatorText("Particle System");
+            ImGui::Text("Particles: %d", ps.ParticlesCount());
+            ImGui::Text("Active: %d", ps.ActiveParticlesCount());
+            ImGui::Text("Inactive: %d", ps.InactiveParticlesCount());
+
+
             ImGui::End();
         }
 

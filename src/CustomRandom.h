@@ -16,7 +16,10 @@ public:
 	/// Returns a float between -num and num
 	float Generate(float num);
 
+	float GenerateAngle(double angle);
+
 	glm::vec2 RandomCircle();
+	glm::vec3 RandomSphere();
 };
 
 
