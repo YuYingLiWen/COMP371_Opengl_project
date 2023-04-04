@@ -100,9 +100,9 @@ void ParticleSystem::Reset()
 	}
 }
 
-void ParticleSystem::Pause() { PRINT_LOG("Pause"); paused = true; }
+void ParticleSystem::Pause() { paused = true; }
 
-void ParticleSystem::Play() { PRINT_LOG("Play"); paused = false; }
+void ParticleSystem::Play() { paused = false; }
 
 unsigned int ParticleSystem::ParticlesCount() { return ActiveParticlesCount() + InactiveParticlesCount(); }
 
