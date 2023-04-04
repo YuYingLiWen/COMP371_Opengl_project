@@ -13,6 +13,7 @@
 #include "Camera.h"
 #include "AppTime.h"
 #include "CustomRandom.h"
+#include "YuMath.h"
 
 static std::vector<glm::vec3> quad_pos = {
 		// Front face
@@ -39,11 +40,12 @@ public:
 	bool enabled = false;
 
 	Transform transform;
+	float life_time_left = 5.0f;
 	float life_time = 5.0f;
 	glm::vec3 velocity = glm::vec3(CustomRandom::GetInstance().RandomSphere());
 
-	//glm::vec4 color_begin;
-	glm::vec4 color_end = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f); // Magenta
+	glm::vec4 color_begin = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f); // Red
+	glm::vec4 color_end = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f); // Green
 
 	glm::mat4 GetModel()
 	{
@@ -96,14 +98,14 @@ public:
 		to_be_deactivated_buffer.clear();
 
 		program.Bind();
-		//SceneObject::Bind();
+		
 		glBindVertexArray(vao);
 		
 		for (auto& p : active_particles)
 		{
-			p->life_time -= AppTime::DeltaTime();
+			p->life_time_left -= AppTime::DeltaTime();
 
-			if (p->life_time <= 0.0f) to_be_deactivated_buffer.push_back(p);
+			if (p->life_time_left <= 0.0f) to_be_deactivated_buffer.push_back(p);
 			else Draw(p);
 		}
 
@@ -169,16 +171,19 @@ private:
 
 	void Draw(Particle* p)
 	{
-		//Transforms
+		//Color stuff
+		glm::vec4 current_color = YuMath::Lerp(p->color_end, p->color_begin, p->life_time_left/p->life_time);
+
+
+		//Transforms stuff
 		//p->transform.SetScale(glm::vec3(1.0f));
 
-		//glm::mat4 lookat = p->transform.LookAt(camera.GetTransform().Position());
+		glm::mat4 lookat = p->transform.LookAt(camera.GetTransform().Position());
 		p->transform.Translate(p->velocity * gravity * AppTime::DeltaTime());
 
 		//Shader stuff
-
 		program.SetPVM(camera.GetProjection(), camera.GetView(), p->GetModel());
-		program.SetUniform4f("u_color", p->color_end);
+		program.SetUniform4f("u_color", current_color);
 
 		
 		glDrawElements(GL_TRIANGLES, indexes.size(), GL_UNSIGNED_INT, nullptr);
@@ -210,7 +215,7 @@ private:
 	void ResetParticle(Particle* p) 
 	{
 		p->enabled = true;
-		p->life_time = 5.0f;
+		p->life_time_left = p->life_time;
 		p->transform.SetPosition(glm::vec3(0.0f));
 	}
 

@@ -239,7 +239,7 @@ int main(void)
     TerrainLerpState lerp_state = TOWARDS;
     bool terrain_is_lerping = true;
 
-    bool rotate_around = true;
+    bool is_demonstrating = true;
     float cam_rot_speed = 15.0f;
     /* Loop until the user closes the window */
 
@@ -251,20 +251,22 @@ int main(void)
 
         ps.Emit();
 
-        if (rotate_around)
+        if (is_demonstrating)
         {
             view = camera.GetView(glm::vec3(0.0f, 0.0f, 0.0f));
+            rotation = camera.GetTransform().Rotation().x;
             camera.GetTransform().Rotate(cam_rot_speed * AppTime::DeltaTime(), glm::vec3(0.0f, 1.0f, 0.0f));
         }
         else
         {
+            camera.UserInputs(window);
+
             glm::vec3 rot = glm::vec3(rotation, camera.GetTransform().Rotation().y, camera.GetTransform().Rotation().z);
             camera.GetTransform().SetRotation(rot);
             view = camera.GetView();
         }
 
 
-        camera.UserInputs(window);
 
 
         glm::vec2 val = CustomRandom::GetInstance().RandomCircle();
@@ -368,7 +370,16 @@ int main(void)
             {
                 /// CAMERA
                 ImGui::SeparatorText("Camera");
-                ImGui::Checkbox("Rotate Around", &rotate_around);
+
+                if (ImGui::Button("Demo Style"))
+                {
+                    is_demonstrating = !is_demonstrating;
+
+                    if(is_demonstrating) Camera::Reset(camera);
+                }
+                ImGui::SameLine();
+                ImGui::Text("State: %s", (is_demonstrating? "True" : "False"));
+
                 ImGui::SliderFloat("Rotation Speed", &cam_rot_speed, -90.0f, 90.0f);
                 ImGui::SliderFloat("Pitch", &rotation, -180.0f, 180.0f);
                 if (ImGui::Button("Reset"))
