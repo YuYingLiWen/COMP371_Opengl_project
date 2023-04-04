@@ -43,14 +43,14 @@ void Transform::Rotate(float angle, glm::vec3 axis)
     if (axis.y > 0)
     {
         rotation.y += angle;
-       glm::vec4 rot = glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), UP) * glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
-        up = glm::vec3(rot.x / rot.w, rot.y / rot.w, rot.z / rot.w);
+       //glm::vec4 rot = glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), UP) * glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+        //up = glm::vec3(rot.x / rot.w, rot.y / rot.w, rot.z / rot.w);
     }
     if (axis.z > 0)
     {
         rotation.z += angle;
-        glm::vec4 rot = glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), FORWARD) * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-        forward = glm::vec3(rot.x/ rot.w, rot.y / rot.w, rot.z / rot.w);
+        //glm::vec4 rot = glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), FORWARD) * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+        //forward = glm::vec3(rot.x/ rot.w, rot.y / rot.w, rot.z / rot.w);
     }
 }
 

@@ -154,8 +154,19 @@ int main(void)
     ShaderProgram grid_shader;
     grid_shader.Attach("res\\shaders\\grid_vs.shader", "res\\shaders\\grid_fs.shader");
 
-    ParticleSystem ps;
-    ps.Play();
+    ParticleData data;
+    ParticleSystem ps(3, data);
+    //ps.Play();
+
+    ParticleData cloud_data;
+    cloud_data.scale = glm::vec3(20.0f, 5.0f, 20.0f);
+    cloud_data.life_time = 30.0f;
+    cloud_data.color_begin = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    cloud_data.color_end = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    cloud_data.direction = glm::vec3(1.0f, 0.0f, 0.0f);
+
+    ParticleSystem cloud_ps(1, 0.5f, glm::vec3(-150.0f, 60.0f ,0.0f),glm::vec3(0.0f, 5.0f, 80.0f), cloud_data);
+    cloud_ps.Play();
 
     Renderer renderer;
 
@@ -203,8 +214,6 @@ int main(void)
         AppTime::UpdateTime();
 
         renderer.Clear();
-
-        ps.Emit();
 
         if (is_demonstrating)
         {
@@ -300,11 +309,11 @@ int main(void)
                 }
             }
 
-            //renderer.Draw(*terrain2);
+            renderer.Draw(*terrain2);
         }
 
-        ps.Update();
-
+        //ps.Update();
+        cloud_ps.Update();
 
         // Render ImGui on top of everything
         // Start the Dear ImGui frame

@@ -22,18 +22,20 @@ static glm::vec3 quad_normal = glm::vec3(0.0f, 0.0f, 1.0f);
 
 extern Camera camera;
 
-struct Particle 
+class Particle 
 {
 public:
 	bool enabled = false;
 
 	Transform transform;
 	float life_time_left = 5.0f;
-	float life_time = 5.0f;
 	glm::vec3 direction = glm::vec3(CustomRandom::GetInstance().RandomSphere());
 
 	glm::vec4 color_begin = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f); // Red
 	glm::vec4 color_end = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f); // Green
+
+	Particle(glm::vec4 color_begin, glm::vec4 color_end, glm::vec3 direction)
+		:color_begin(color_begin), color_end(color_end), direction(direction) {}
 
 	glm::mat4 GetModel()
 	{
@@ -50,16 +52,46 @@ public:
 	}
 };
 
+struct ParticleData
+{
+public:
+	float life_time = 5.0f;
+	glm::vec3 scale;
+	glm::vec3 direction;
+
+	glm::vec4 color_begin = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f); // Red
+	glm::vec4 color_end = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f); // Green
+};
+
 class ParticleSystem : public SceneObject
 {
 public:
-	ParticleSystem()
-		:SceneObject(&cube_pos, &cube_indexes)
+	ParticleSystem(ParticleData data)
+		: rate(1), data(data),
+		SceneObject(&cube_pos, &cube_indexes)
 	{
-		program.Attach("res\\shaders\\color_vs.shader", "res\\shaders\\color_fs.shader");
+		Awake();
+	}
 
-		int to_make = 500;
-		for (unsigned int i = 0; i < to_make; i++) Make();
+	ParticleSystem(float rate, ParticleData data)
+		: rate(rate), data(data),
+		SceneObject(&cube_pos, &cube_indexes)
+	{
+		Awake();
+	}
+
+	ParticleSystem(glm::vec3 position, ParticleData data)
+		:rate(1), position(position), data(data),
+		SceneObject(&cube_pos, &cube_indexes)
+	{
+		Awake();
+	}
+
+	ParticleSystem(int emit_count, float rate, glm::vec3 position, glm::vec3 spawn_area, ParticleData data)
+		:emit_count(emit_count), rate(rate), position(position), spawn_area(spawn_area), data(data),
+		SceneObject(&cube_pos, &cube_indexes)
+	{
+		Awake();
 	}
 
 	~ParticleSystem()
@@ -75,11 +107,12 @@ public:
 	void Update()
 	{
 		if (paused) return;
+		
+		Emit();
 
 		to_be_deactivated_buffer.clear();
 
 		program.Bind();
-		
 		SceneObject::Bind();
 		
 		for (auto& p : active_particles)
@@ -87,7 +120,10 @@ public:
 			p->life_time_left -= AppTime::DeltaTime();
 
 			if (p->life_time_left <= 0.0f) to_be_deactivated_buffer.push_back(p);
-			else Draw(p);
+			else
+			{	
+				Draw(p);
+			}
 		}
 
 		for (auto& p : to_be_deactivated_buffer) Enqueue(p);
@@ -101,15 +137,7 @@ public:
 		}
 	}
 
-	void Emit()
-	{
-		elapsed_time += AppTime::DeltaTime();
 
-		//if ((unsigned int)elapsed_time % 3 == 0)
-		{
-			Dequeu();
-		}
-	}
 
 	void Pause() { paused = true; }
 	void Play() { paused = false; }
@@ -119,9 +147,31 @@ public:
 
 
 private:
+	void Emit()
+	{
+		time_elapsed -= AppTime::DeltaTime();
+
+		if (time_elapsed <= 0.0f)
+		{
+			for (float i = 0; i < emit_count; i++)
+			{
+				Dequeu();
+			}
+
+			time_elapsed = rate;
+		}
+	}
+
+	void Awake()
+	{
+		program.Attach("res\\shaders\\color_vs.shader", "res\\shaders\\color_fs.shader");
+
+		int to_make = 500;
+		for (unsigned int i = 0; i < to_make; i++) Make();
+	}
 	void Make()
 	{
-		inactive_particles.push(new Particle());
+		inactive_particles.push(new Particle(data.color_begin, data.color_end, data.direction));
 	}
 
 	// Becomes inactive
@@ -153,13 +203,13 @@ private:
 	void Draw(Particle* p)
 	{
 		//Transforms stuff
-		//p->transform.SetScale(glm::vec3(1.0f));
+		//p->transform.SetScale(glm::vec3(1.0f, 3.0f, 0.5f));
 
 		//Shader stuff
 		//Color stuff
 		program.SetUniform4f("u_color_begin", p->color_begin);
 		program.SetUniform4f("u_color_end", p->color_end);
-		program.SetUniformFloat("u_t", p->life_time_left / p->life_time);
+		program.SetUniformFloat("u_t", p->life_time_left / data.life_time);
 
 		glm::mat4 lookat = p->transform.LookAt(camera.GetTransform().Position());
 
@@ -170,21 +220,25 @@ private:
 
 		program.SetPVM(camera.GetProjection(), camera.GetView(), p->GetModel());
 
-
-
-		
 		glDrawElements(GL_TRIANGLES, cube_indexes.size(), GL_UNSIGNED_INT, nullptr);
 	}
 
 	void ResetParticle(Particle* p) 
 	{
 		p->enabled = true;
-		p->life_time_left = p->life_time;
-		p->transform.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		p->life_time_left = data.life_time;
+		p->transform.SetPosition(position + spawn_area * CustomRandom::GetInstance().Generate(2.0f));
+		p->transform.SetScale(data.scale);
 		//p->transform.SetPosition(glm::vec3(CustomRandom::GetInstance().Generate(2.0f) * 100.0f, 0.0f, CustomRandom::GetInstance().Generate(2.0f) * 100.0f));
 	}
 
 private:
+	ParticleData data;
+
+	glm::vec3 position = glm::vec3(0.0f);
+	glm::vec3 spawn_area = glm::vec3(0.0f);
+
+
 	std::vector<Particle*> to_be_deactivated_buffer;
 
 	std::list<Particle*> active_particles;
@@ -192,9 +246,13 @@ private:
 
 	ShaderProgram program;
 
-	double elapsed_time = 0.0f;
-	bool paused = false;
+	bool paused = true;
 
 	const float gravity = 9.8f;
+
+	float rate = 1;
+	int emit_count = 1;
+
+	float time_elapsed = 0.0f;
 };
 
