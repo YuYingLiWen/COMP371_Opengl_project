@@ -15,34 +15,22 @@
 #include "CustomRandom.h"
 #include "YuMath.h"
 
-static std::vector<glm::vec3> quad_pos = {
-		// Front face
-		glm::vec3(-0.5f, -0.5f, 0.5f),   // 0 Bot Left
-		glm::vec3(0.5f, -0.5f, 0.5f),   // 1 Bot Right
-		glm::vec3(0.5f,  0.5f, 0.5f),   // 2 Top Right
-		glm::vec3(-0.5f,  0.5f, 0.5f),   // 3 Top Left
-};
-
-static std::vector<unsigned int> indexes = {
-	// front face
-	0, 1, 2,
-	0, 2, 3,
-};
+extern std::vector<unsigned int> cube_indexes;
+extern std::vector<glm::vec3> cube_pos;
 
 static glm::vec3 quad_normal = glm::vec3(0.0f, 0.0f, 1.0f);
 
 extern Camera camera;
 
-struct Particle
+struct Particle 
 {
-
 public:
 	bool enabled = false;
 
 	Transform transform;
 	float life_time_left = 5.0f;
 	float life_time = 5.0f;
-	glm::vec3 velocity = glm::vec3(CustomRandom::GetInstance().RandomSphere());
+	glm::vec3 direction = glm::vec3(CustomRandom::GetInstance().RandomSphere());
 
 	glm::vec4 color_begin = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f); // Red
 	glm::vec4 color_end = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f); // Green
@@ -62,13 +50,12 @@ public:
 	}
 };
 
-class ParticleSystem 
+class ParticleSystem : public SceneObject
 {
 public:
 	ParticleSystem()
+		:SceneObject(&cube_pos, &cube_indexes)
 	{
-		Awake();
-
 		program.Attach("res\\shaders\\color_vs.shader", "res\\shaders\\color_fs.shader");
 
 		int to_make = 500;
@@ -83,12 +70,6 @@ public:
 			delete inactive_particles.front();
 			inactive_particles.pop();
 		}
-
-		glDeleteBuffers(1, &quad_vbo);
-		glDeleteBuffers(1, &normal_vbo);
-		glDeleteBuffers(1, &ibo);
-
-		glDeleteVertexArrays(1, &vao);
 	}
 
 	void Update()
@@ -99,7 +80,7 @@ public:
 
 		program.Bind();
 		
-		glBindVertexArray(vao);
+		SceneObject::Bind();
 		
 		for (auto& p : active_particles)
 		{
@@ -171,52 +152,36 @@ private:
 
 	void Draw(Particle* p)
 	{
-		//Color stuff
-		glm::vec4 current_color = YuMath::Lerp(p->color_end, p->color_begin, p->life_time_left/p->life_time);
-
-
 		//Transforms stuff
 		//p->transform.SetScale(glm::vec3(1.0f));
 
-		glm::mat4 lookat = p->transform.LookAt(camera.GetTransform().Position());
-		p->transform.Translate(p->velocity * gravity * AppTime::DeltaTime());
-
 		//Shader stuff
+		//Color stuff
+		program.SetUniform4f("u_color_begin", p->color_begin);
+		program.SetUniform4f("u_color_end", p->color_end);
+		program.SetUniformFloat("u_t", p->life_time_left / p->life_time);
+
+		glm::mat4 lookat = p->transform.LookAt(camera.GetTransform().Position());
+
+		//p->direction = p->direction * gravity;
+
+		p->transform.Translate(p->direction * gravity * AppTime::DeltaTime());
+
+
 		program.SetPVM(camera.GetProjection(), camera.GetView(), p->GetModel());
-		program.SetUniform4f("u_color", current_color);
+
+
 
 		
-		glDrawElements(GL_TRIANGLES, indexes.size(), GL_UNSIGNED_INT, nullptr);
-	}
-
-
-	void Awake()
-	{
-		glGenVertexArrays(1, &vao); 
-		glBindVertexArray(vao); 
-
-		glGenBuffers( 1, &quad_vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, quad_vbo);
-		glBufferData(GL_ARRAY_BUFFER, quad_pos.size() * sizeof(glm::vec3), quad_pos.data(), GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
-
-		glGenBuffers(1, &normal_vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, normal_vbo);
-		glBufferData(GL_ARRAY_BUFFER, 1 * sizeof(glm::vec3), &quad_normal, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
-
-		glGenBuffers(1, &ibo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexes.size() * sizeof(unsigned int), indexes.data(), GL_STATIC_DRAW);
+		glDrawElements(GL_TRIANGLES, cube_indexes.size(), GL_UNSIGNED_INT, nullptr);
 	}
 
 	void ResetParticle(Particle* p) 
 	{
 		p->enabled = true;
 		p->life_time_left = p->life_time;
-		p->transform.SetPosition(glm::vec3(0.0f));
+		p->transform.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		//p->transform.SetPosition(glm::vec3(CustomRandom::GetInstance().Generate(2.0f) * 100.0f, 0.0f, CustomRandom::GetInstance().Generate(2.0f) * 100.0f));
 	}
 
 private:
@@ -231,10 +196,5 @@ private:
 	bool paused = false;
 
 	const float gravity = 9.8f;
-
-	unsigned int vao = -1;
-	unsigned int quad_vbo = -1;
-	unsigned int normal_vbo = -1;
-	unsigned int ibo = -1;
 };
 

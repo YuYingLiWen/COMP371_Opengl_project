@@ -43,7 +43,8 @@ float amplitude = 70.0f;
 int split = 8;
 
 
-
+extern std::vector<unsigned int> cube_indexes;
+extern std::vector<glm::vec3> cube_pos;
 
 
 extern bool WIREMESH_TOGGLE;
@@ -107,57 +108,11 @@ int main(void)
 
     PRINT_LOG(glGetString(GL_VERSION)); // Prints Opengl version
 
-    auto positions = std::make_unique<std::vector<glm::vec3>>();
-
-    *positions = std::vector<glm::vec3>{
-        
-        // Front face
-        glm::vec3(-0.5f, -0.5f, 0.5f),   // 0 Bot Left
-        glm::vec3( 0.5f, -0.5f, 0.5f),   // 1 Bot Right
-        glm::vec3( 0.5f,  0.5f, 0.5f),   // 2 Top Right
-        glm::vec3(-0.5f,  0.5f, 0.5f),   // 3 Top Left
-
-        // Back face
-        glm::vec3(-0.5f, -0.5f, -0.5f),  // 4 Bot Left
-        glm::vec3( 0.5f, -0.5f, -0.5f),  // 5 Bot Right
-        glm::vec3( 0.5f,  0.5f, -0.5f),  // 6 Top Right
-        glm::vec3(-0.5f,  0.5f, -0.5f),  // 7 Top Left
-    };
-
-    // Creating index buffer
-    auto indices = std::make_unique<std::vector<unsigned int>>();
-    
-    *indices = std::vector<unsigned int>{
-        // front face
-        0, 1, 2,
-        0, 2, 3,
-
-        //Back face
-        4,5,6,
-        4,6,7,
-
-        // Top face
-        3,2,6,
-        3,6,7,
-
-        // Bottom face
-        0,1,5,
-        0,5,4,
-
-        //Left face
-        1,5,6,
-        1,6,2,
-
-        //Right face
-        4,0,3,
-        4,3,7
-    };
-
-    SceneObject cube1(positions.get(), indices.get());
+    SceneObject cube1(&cube_pos, &cube_indexes);
     //cube1.SetLayout(0, 3, GL_FLOAT, 3 * sizeof(float));
     cube1.Transform().SetPosition(glm::vec3(0.0f, 5.0f, 0.0f));
     
-    SceneObject cube2(positions.get(), indices.get());
+    SceneObject cube2(&cube_pos, &cube_indexes);
     //cube2.SetLayout(0, 3, GL_FLOAT, 3 * sizeof(float));
     cube2.Transform().SetPosition(glm::vec3(5.0f, 0.0f, 0.0f));
 
@@ -317,12 +272,10 @@ int main(void)
                 if (lerp_state == TOWARDS)
                 {
                     terrain_t = glm::clamp(terrain_lerp_time_elapsed / terrain_lerp_duration, 0.0f, 1.0f) ;
-                    DEBUG_LOG("TOWARDS : " << terrain_t);
                 }
                 else // Backwards 
                 {
                     terrain_t = glm::clamp(1.0f - (terrain_lerp_time_elapsed / terrain_lerp_duration), 0.0f, 1.0f) ;
-                    DEBUG_LOG("BACK : " << terrain_t);
                 }
 
                 terrain2->Lerp(terrain_t);
