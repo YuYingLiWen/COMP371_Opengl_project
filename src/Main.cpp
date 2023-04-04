@@ -73,7 +73,7 @@ int main(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(camera.width, camera.height, "Not Unity", NULL, NULL);
+    window = glfwCreateWindow(camera.width, camera.height, "", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -108,17 +108,21 @@ int main(void)
 
     PRINT_LOG(glGetString(GL_VERSION)); // Prints Opengl version
 
-    SceneObject cube1(&cube_pos, &cube_indexes);
-    //cube1.SetLayout(0, 3, GL_FLOAT, 3 * sizeof(float));
-    cube1.Transform().SetPosition(glm::vec3(0.0f, 5.0f, 0.0f));
-    
-    SceneObject cube2(&cube_pos, &cube_indexes);
-    //cube2.SetLayout(0, 3, GL_FLOAT, 3 * sizeof(float));
-    cube2.Transform().SetPosition(glm::vec3(5.0f, 0.0f, 0.0f));
+    //SceneObject cube1(&cube_pos, &cube_indexes);
+    ////cube1.SetLayout(0, 3, GL_FLOAT, 3 * sizeof(float));
+    //cube1.Transform().SetPosition(glm::vec3(0.0f, 5.0f, 0.0f));
+    //
+    //SceneObject cube2(&cube_pos, &cube_indexes);
+    ////cube2.SetLayout(0, 3, GL_FLOAT, 3 * sizeof(float));
+    //cube2.Transform().SetPosition(glm::vec3(5.0f, 0.0f, 0.0f));
+
+
+
 
     TerrainGenerator tg;
     MeshGenerator mg;
 
+    
     //// Perlin noise map
     auto terrain_data = tg.GeneratePerlinTerrain(terrain_dimensions.x, terrain_dimensions.y, iter, amplitude, split);//tg.Generate(terrain_dimensions, glm::vec2((float)terrain_dimensions.x * 0.5f, (float)terrain_dimensions.y * 0.5f), terrain_dimensions.x * 0.5f, 50.0f);
     auto base_mesh = mg.Generate(terrain_dimensions);
@@ -159,14 +163,25 @@ int main(void)
     //ps.Play();
 
     ParticleData cloud_data;
-    cloud_data.scale = glm::vec3(20.0f, 5.0f, 20.0f);
+    cloud_data.scale = glm::vec3(30.0f, 8.0f, 30.0f);
     cloud_data.life_time = 30.0f;
     cloud_data.color_begin = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     cloud_data.color_end = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     cloud_data.direction = glm::vec3(1.0f, 0.0f, 0.0f);
 
-    ParticleSystem cloud_ps(1, 0.5f, glm::vec3(-150.0f, 60.0f ,0.0f),glm::vec3(0.0f, 5.0f, 80.0f), cloud_data);
+    ParticleSystem cloud_ps(1, 1.0f, glm::vec3(-150.0f, 65.0f ,0.0f),glm::vec3(0.0f, 10.0f, 80.0f), cloud_data);
     cloud_ps.Play();
+
+
+    ParticleData rain_data;
+    rain_data.scale = glm::vec3(0.2f, 5.0f, 0.2f);
+    rain_data.life_time = 1.0f;
+    rain_data.color_begin = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    rain_data.color_end = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    rain_data.direction = glm::vec3(0.0f, -10.0f, 0.0f);
+
+    ParticleSystem rain_ps(10, 0.2f, glm::vec3(0.0f, 65.0f, 0.0f), glm::vec3(50.0f, 0.0f, 50.0f), rain_data);
+    rain_ps.Play();
 
     Renderer renderer;
 
@@ -207,7 +222,11 @@ int main(void)
 
     bool is_demonstrating = true;
     float cam_rot_speed = 15.0f;
-    /* Loop until the user closes the window */
+    
+
+    // Weather control
+    bool has_clouds = false;
+    bool has_rain = false;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -245,22 +264,22 @@ int main(void)
             if (grid != nullptr) renderer.Draw(GL_LINES, *grid);
         }
 
-        simple_shader.Bind();
-        cube1.Transform().Rotate(glm::radians(15.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        simple_shader.SetUniformMat4f("u_projection", projection);
-        simple_shader.SetUniformMat4f("u_model", cube1.GetModel());
-        simple_shader.SetUniformMat4f("u_view", view);
-        simple_shader.SetUniform4f("u_color", 1.0f, 0.0f, 0.0f, 1.0f);
-        renderer.Draw(cube1);
+        //simple_shader.Bind();
+        //cube1.Transform().Rotate(glm::radians(15.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        //simple_shader.SetUniformMat4f("u_projection", projection);
+        //simple_shader.SetUniformMat4f("u_model", cube1.GetModel());
+        //simple_shader.SetUniformMat4f("u_view", view);
+        //simple_shader.SetUniform4f("u_color", 1.0f, 0.0f, 0.0f, 1.0f);
+        //renderer.Draw(cube1);
 
-        cube2.Transform().Rotate(glm::radians(15.0f) , glm::vec3(0.0f, 1.0f, 0.0f));
-        cube2.Transform().Translate(glm::vec3(0.0f, glm::sin(glfwGetTime())* AppTime::DeltaTime(), 0.0f));
-        
-        simple_shader.SetUniformMat4f("u_projection", projection);
-        simple_shader.SetUniformMat4f("u_view", view);
-        simple_shader.SetUniformMat4f("u_model", cube2.GetModel());
-        simple_shader.SetUniform4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
-        renderer.Draw(cube2);
+        //cube2.Transform().Rotate(glm::radians(15.0f) , glm::vec3(0.0f, 1.0f, 0.0f));
+        //cube2.Transform().Translate(glm::vec3(0.0f, glm::sin(glfwGetTime())* AppTime::DeltaTime(), 0.0f));
+        //
+        //simple_shader.SetUniformMat4f("u_projection", projection);
+        //simple_shader.SetUniformMat4f("u_view", view);
+        //simple_shader.SetUniformMat4f("u_model", cube2.GetModel());
+        //simple_shader.SetUniform4f("u_color", 1.0f, 1.0f, 1.0f, 1.0f);
+        //renderer.Draw(cube2);
 
         if (terrain2)
         {
@@ -312,8 +331,8 @@ int main(void)
             renderer.Draw(*terrain2);
         }
 
-        //ps.Update();
-        cloud_ps.Update();
+        if (has_clouds) cloud_ps.Update();
+        if (has_rain) rain_ps.Update();
 
         // Render ImGui on top of everything
         // Start the Dear ImGui frame
@@ -324,7 +343,7 @@ int main(void)
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
         {
-            ImGui::Begin("F2 - DEBUG");                          
+            ImGui::Begin("DEBUG");                          
 
             ImGui::Checkbox("Demo Window", &show_demo_window);     
 
@@ -354,8 +373,10 @@ int main(void)
                 ImGui::NewLine();
             }
        
-            if (ImGui::CollapsingHeader("Terrain Controls"))
+            if (ImGui::CollapsingHeader("Terrain & Weather Controls"))
             {
+                ImGui::SeparatorText("Terrain");
+
                 ImGui::SliderInt("Gradient Grid Division", &split, 1, 10);
                 ImGui::SliderFloat("Amplitude", &amplitude, 0.0f, 100.0f);
                 ImGui::SliderInt("Iteration", &iter, 1, 100);
@@ -367,6 +388,20 @@ int main(void)
                     terrain_is_lerping = true;
                     lerp_state = BACKWARDS;
                 }
+
+                ImGui::SeparatorText("Weather");
+                ImGui::Checkbox("Rain", &has_rain);
+                ImGui::SameLine();
+                if (ImGui::Button("Pause Rain")) rain_ps.Pause();
+                ImGui::SameLine();
+                if (ImGui::Button("Play Rain")) rain_ps.Play();
+                ImGui::NewLine();
+                
+                ImGui::Checkbox("Clouds", &has_clouds);
+                ImGui::SameLine();
+                if (ImGui::Button("Pause Clouds")) cloud_ps.Pause();
+                ImGui::SameLine();
+                if (ImGui::Button("Play Clouds")) cloud_ps.Play();
                 ImGui::NewLine();
             }
 
