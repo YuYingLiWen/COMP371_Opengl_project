@@ -253,13 +253,19 @@ int main(void)
 
         if (rotate_around)
         {
-            camera.GetTransform().LookAt(glm::vec3(0.0f, 0.0f, 0.0f));
+            view = camera.GetView(glm::vec3(0.0f, 0.0f, 0.0f));
             camera.GetTransform().Rotate(cam_rot_speed * AppTime::DeltaTime(), glm::vec3(0.0f, 1.0f, 0.0f));
         }
+        else
+        {
+            glm::vec3 rot = glm::vec3(rotation, camera.GetTransform().Rotation().y, camera.GetTransform().Rotation().z);
+            camera.GetTransform().SetRotation(rot);
+            view = camera.GetView();
+        }
+
 
         camera.UserInputs(window);
 
-        view = camera.GetView();
 
         glm::vec2 val = CustomRandom::GetInstance().RandomCircle();
         /* Render here */
@@ -271,7 +277,6 @@ int main(void)
             grid_shader.SetUniformMat4f("u_view", view);
             if (grid != nullptr) grid_shader.SetUniformMat4f("u_model", grid->GetModel());
             if (grid != nullptr) renderer.Draw(GL_LINES, *grid);
-
         }
 
         simple_shader.Bind();

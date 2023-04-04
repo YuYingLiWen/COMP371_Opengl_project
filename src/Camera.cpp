@@ -75,6 +75,17 @@ glm::mat4 Camera::GetView()
     return matrix;
 }
 
+glm::mat4 Camera::GetView(glm::vec3 lookat_pos)
+{
+    matrix = transform.LookAt(lookat_pos);
+
+    matrix = glm::rotate(matrix, glm::radians(transform.Rotation().x), glm::vec3(1.0f, 0.0f, 0.0f));
+    matrix = glm::rotate(matrix, glm::radians(transform.Rotation().y), glm::vec3(0.0f, 1.0f, 0.0f));
+    matrix = glm::rotate(matrix, glm::radians(transform.Rotation().z), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    return matrix;
+}
+
 glm::mat4 Camera::GetProjection() const
 {
 	return glm::perspective(glm::radians(fov), aspect_ratio, 0.1f, far_plane);

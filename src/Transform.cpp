@@ -62,7 +62,7 @@ glm::mat4 Transform::LookAt() const
 
 glm::mat4 Transform::LookAt(glm::vec3 lookat_pos) const
 {
-    return glm::lookAt(position, position + (position - lookat_pos), up);
+    return glm::lookAt(position, position + (lookat_pos - position), up);
 }
 
 glm::vec3 Transform::Right() const { return glm::normalize(glm::cross(up, forward)); }

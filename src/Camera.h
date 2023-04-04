@@ -19,6 +19,7 @@ public:
 	float AspectRatio() const;
 
 	glm::mat4 GetView();
+	glm::mat4 GetView(glm::vec3 lookat_pos);
 	glm::mat4 GetProjection() const;
 	
 	float& GetKeySpeed();
