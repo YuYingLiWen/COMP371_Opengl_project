@@ -310,12 +310,12 @@ int main(void)
                 if (lerp_state == TOWARDS)
                 {
                     terrain_t = glm::clamp(terrain_lerp_time_elapsed / terrain_lerp_duration, 0.0f, 1.0f) ;
-                    //PRINT_LOG("TOWARDS : " << terrain_t);
+                    DEBUG_LOG("TOWARDS : " << terrain_t);
                 }
                 else // Backwards 
                 {
                     terrain_t = glm::clamp(1.0f - (terrain_lerp_time_elapsed / terrain_lerp_duration), 0.0f, 1.0f) ;
-                    //PRINT_LOG("BACK : " << terrain_t);
+                    DEBUG_LOG("BACK : " << terrain_t);
                 }
 
                 terrain2->Lerp(terrain_t);
@@ -340,7 +340,7 @@ int main(void)
                 }
             }
 
-            renderer.Draw(*terrain2);
+            //renderer.Draw(*terrain2);
         }
 
         ps.Update();

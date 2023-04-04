@@ -112,7 +112,7 @@ void SceneObject::Unbind() const
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-unsigned int SceneObject::GetCount() const
+unsigned int SceneObject::GetIndexCount() const
 {
     return ibo_size;
 }

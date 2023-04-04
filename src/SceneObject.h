@@ -57,7 +57,7 @@ public:
 	void Attach(ShaderProgram& program);
 	void Bind();
 	void Unbind() const;
-	unsigned int GetCount() const;
+	unsigned int GetIndexCount() const;
 
 private:
 	void Populate(std::vector<glm::vec3>* positions, std::vector<unsigned int>* indexes, std::vector<glm::vec3>* normals = nullptr);

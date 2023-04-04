@@ -1,6 +1,7 @@
 #pragma once
 #include <list>
 #include <queue>
+#include <vector>
 #include <GLEW/glew.h>
 
 #include "Transform.h"
@@ -13,14 +14,44 @@
 #include "AppTime.h"
 #include "CustomRandom.h"
 
-#include <memory>
-
 static std::vector<glm::vec3> quad_pos = {
-	// Front face
-	glm::vec3(-0.5f, -0.5f, 0.0f),   // 0 Bot Left
-	glm::vec3(0.5f, -0.5f, 0.0f),   // 1 Bot Right
-	glm::vec3(0.5f,  0.5f, 0.0f),   // 2 Top Right
-	glm::vec3(-0.5f,  0.5f, 0.0f),   // 3 Top Left
+		// Front face
+		glm::vec3(-0.5f, -0.5f, 0.5f),   // 0 Bot Left
+		glm::vec3(0.5f, -0.5f, 0.5f),   // 1 Bot Right
+		glm::vec3(0.5f,  0.5f, 0.5f),   // 2 Top Right
+		glm::vec3(-0.5f,  0.5f, 0.5f),   // 3 Top Left
+
+		// Back face
+		glm::vec3(-0.5f, -0.5f, -0.5f),  // 4 Bot Left
+		glm::vec3(0.5f, -0.5f, -0.5f),  // 5 Bot Right
+		glm::vec3(0.5f,  0.5f, -0.5f),  // 6 Top Right
+		glm::vec3(-0.5f,  0.5f, -0.5f),  // 7 Top Left
+};
+
+static std::vector<unsigned int> indexes = {
+	// front face
+	0, 1, 2,
+	0, 2, 3,
+
+	//Back face
+	4,5,6,
+	4,6,7,
+
+	// Top face
+	3,2,6,
+	3,6,7,
+
+	// Bottom face
+	0,1,5,
+	0,5,4,
+
+	//Left face
+	1,5,6,
+	1,6,2,
+
+	//Right face
+	4,0,3,
+	4,3,7
 };
 
 static glm::vec3 quad_normal = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -51,63 +82,63 @@ public:
 		mat = glm::rotate(mat, glm::radians(transform.Rotation().z), FORWARD);
 
 		mat = glm::scale(mat, transform.Scale());
-
 		return mat;
 	}
 };
 
-class ParticleSystem
+class ParticleSystem 
 {
 public:
 	ParticleSystem()
 	{
-		glGenVertexArrays(1, &vao);
-		glBindVertexArray(vao);
+		Awake();
 
-		glGenBuffers(1, &vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(glm::vec3), &quad_pos, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
-
-		glGenBuffers(1, &normal_vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, normal_vbo);
-		glBufferData(GL_ARRAY_BUFFER, 1 * sizeof(glm::vec3), &quad_normal, GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
+		program.Attach("res\\shaders\\color_vs.shader", "res\\shaders\\color_fs.shader");
 
 		int to_make = 500;
 		for (unsigned int i = 0; i < to_make; i++) Make();
-
 	}
 
 	~ParticleSystem()
 	{
+		for (auto& p : active_particles) delete p;
+		while (!inactive_particles.empty())
+		{
+			delete inactive_particles.front();
+			inactive_particles.pop();
+		}
 
+		glDeleteBuffers(1, &quad_vbo);
+		glDeleteBuffers(1, &normal_vbo);
+		glDeleteBuffers(1, &ibo);
+
+		glDeleteVertexArrays(1, &vao);
 	}
 
 	void Update()
 	{
 		if (paused) return;
 
-		//program.Bind();
+		to_be_deactivated_buffer.clear();
 
-		std::list<std::shared_ptr<Particle>> to_be_deactivated;
+		program.Bind();
+		//SceneObject::Bind();
+		glBindVertexArray(vao);
 		
 		for (auto& p : active_particles)
 		{
 			p->life_time -= AppTime::DeltaTime();
 
-			PRINT_LOG(p->life_time);
-			if (p->life_time <= 0.0f) to_be_deactivated.push_front(p);
+			if (p->life_time <= 0.0f) to_be_deactivated_buffer.push_back(p);
 			else Draw(p);
 		}
 
-		for (auto& p : to_be_deactivated) Enqueue(p);
+		for (auto& p : to_be_deactivated_buffer) Enqueue(p);
 	}
 
 	void Reset() 
 	{
-		for (std::shared_ptr<Particle> p : active_particles)
+		for (Particle* p : active_particles)
 		{
 			Enqueue(p);
 		}
@@ -133,11 +164,11 @@ public:
 private:
 	void Make()
 	{
-		inactive_particles.push(std::make_shared<Particle>());
+		inactive_particles.push(new Particle());
 	}
 
 	// Becomes inactive
-	void Enqueue(std::shared_ptr<Particle> p)
+	void Enqueue(Particle* p)
 	{
 		p->enabled = false;
 
@@ -146,7 +177,7 @@ private:
 	}
 
 	// Becomes active
-	std::shared_ptr<Particle> Dequeu()
+	Particle* Dequeu()
 	{
 		if (inactive_particles.empty())
 		{
@@ -157,37 +188,73 @@ private:
 		active_particles.push_back(p);
 		inactive_particles.pop();
 
-		p->enabled = true;
-		p->life_time = 5.0f;
+		ResetParticle(p);
+
 		return p;
 	}
 
-	void Draw(std::shared_ptr<Particle> p)
+	void Draw(Particle* p)
 	{
+		//Transforms
+		//p->transform.SetScale(glm::vec3(1.0f));
+
 		p->transform.Translate(p->velocity * gravity * AppTime::DeltaTime());
 
 		//Shader stuff
-		//program.SetPVM(camera.GetProjection(), camera.GetView(), p->GetModel());
+
+		program.SetPVM(camera.GetProjection(), camera.GetView(), p->GetModel());
+		program.SetUniform4f("u_color", p->color_end);
 
 		
+		glDrawElements(GL_TRIANGLES, indexes.size(), GL_UNSIGNED_INT, nullptr);
+	}
 
-		glBindVertexArray(vao);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	void Awake()
+	{
+		glGenVertexArrays(1, &vao); 
+		glBindVertexArray(vao); 
+
+		glGenBuffers( 1, &quad_vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, quad_vbo);
+		glBufferData(GL_ARRAY_BUFFER, quad_pos.size() * sizeof(glm::vec3), quad_pos.data(), GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
+
+		glGenBuffers(1, &normal_vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, normal_vbo);
+		glBufferData(GL_ARRAY_BUFFER, 1 * sizeof(glm::vec3), &quad_normal, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);
+
+		glGenBuffers(1, &ibo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexes.size() * sizeof(unsigned int), indexes.data(), GL_STATIC_DRAW);
+	}
+
+	void ResetParticle(Particle* p) 
+	{
+		p->enabled = true;
+		p->life_time = 5.0f;
+		p->transform.SetPosition(glm::vec3(0.0f));
 	}
 
 private:
-	std::list<std::shared_ptr<Particle>> active_particles;
-	std::queue<std::shared_ptr<Particle>> inactive_particles;
+	std::vector<Particle*> to_be_deactivated_buffer;
+
+	std::list<Particle*> active_particles;
+	std::queue<Particle*> inactive_particles;
 
 	ShaderProgram program;
 
 	double elapsed_time = 0.0f;
 	bool paused = false;
 
-	unsigned int vao = -1;
-	unsigned int vbo = -1;
-	unsigned int normal_vbo = -1;
-
 	const float gravity = 9.8f;
+
+	unsigned int vao = -1;
+	unsigned int quad_vbo = -1;
+	unsigned int normal_vbo = -1;
+	unsigned int ibo = -1;
 };
 

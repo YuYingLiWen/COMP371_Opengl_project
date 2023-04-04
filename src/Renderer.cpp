@@ -59,14 +59,14 @@ void Renderer::Draw(SceneObject& obj) const
 {
     obj.Bind();
 
-    glDrawElements(GL_TRIANGLES, obj.GetCount(), GL_UNSIGNED_INT, nullptr); //Draws with index buffer
+    glDrawElements(GL_TRIANGLES, obj.GetIndexCount(), GL_UNSIGNED_INT, nullptr); //Draws with index buffer
 }
 
 void Renderer::Draw(GLenum mode, SceneObject& obj) const
 {
     obj.Bind();
 
-    glDrawElements(mode, obj.GetCount(), GL_UNSIGNED_INT, nullptr); //Draws with index buffer
+    glDrawElements(mode, obj.GetIndexCount(), GL_UNSIGNED_INT, nullptr); //Draws with index buffer
 }
 
 void Renderer::Clear() const
