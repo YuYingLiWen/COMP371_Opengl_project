@@ -14,7 +14,7 @@ class PerlinGrid
 {
 public:
 
-	void Generate(unsigned int x, unsigned int z, float amplitude);
+	void Generate(unsigned int x, unsigned int z);
 
 	unsigned int GetX();
 	unsigned int GetZ();

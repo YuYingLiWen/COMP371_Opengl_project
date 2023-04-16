@@ -92,6 +92,7 @@ std::shared_ptr<Mesh> TerrainGenerator::GeneratePerlinTerrain(unsigned int x, un
 {
     auto basic_mesh = MeshGenerator::Generate(x, z);
 
+    // For scaling terrain that are not square
     float ratio_x = (float)x / (float)z;
     float ratio_z = (float)z / (float)x;
 
@@ -102,7 +103,7 @@ std::shared_ptr<Mesh> TerrainGenerator::GeneratePerlinTerrain(unsigned int x, un
         int size_x = (float)split * ratio_x * ((float)i + 1.0f);
         int size_z = (float)split * ratio_z * ((float)i + 1.0f);
 
-        grid.Generate(glm::max(size_x, 1), glm::max(size_z, 1), amplitude);
+        grid.Generate(glm::max(size_x, 1), glm::max(size_z, 1)); // Generate terrain grid
 
 
         for (auto& position : *basic_mesh->positions)
@@ -113,7 +114,7 @@ std::shared_ptr<Mesh> TerrainGenerator::GeneratePerlinTerrain(unsigned int x, un
             double u = position.x * x_ratio;
             double v = position.z * z_ratio;
 
-            position.y += PerlinNoise(u, v);
+            position.y += PerlinNoise(u, v) * amplitude;
         }
 
         amplitude *= 0.5f;
@@ -234,7 +235,7 @@ double TerrainGenerator::BumpPattern(double x_off, double z_off)
 
 //// Perlin Grid
 
-void PerlinGrid::Generate(unsigned int x, unsigned int z, float amplitude)
+void PerlinGrid::Generate(unsigned int x, unsigned int z)
 {
     this->x = x;
     this->z = z;
@@ -245,7 +246,7 @@ void PerlinGrid::Generate(unsigned int x, unsigned int z, float amplitude)
     {
         for (size_t x = 0; x < (PerlinGrid::x + 1ull); x++)
         {
-            grid.push_back(CustomRandom::GetInstance().RandomCircle() * amplitude);
+            grid.push_back(CustomRandom::GetInstance().RandomCircle());
         }
     }
 

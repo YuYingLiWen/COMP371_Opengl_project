@@ -38,7 +38,7 @@ glm::vec2 CustomRandom::RandomCircle()
 	float x = Generate(1.0f);
 	float y = Generate(1.0f);
 
-	return glm::vec2(x,y);
+	return glm::normalize(glm::vec2(x,y));
 }
 
 // Returns: angle in radian
