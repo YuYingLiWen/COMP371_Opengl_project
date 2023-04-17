@@ -207,7 +207,7 @@ float TerrainGenerator::PerlinNoise(double u, double v)
     double l2 = YuMath::Lerp(dot_tl, dot_tr, ut);
 
     //Lerp in v
-    return YuMath::Lerp(l1, l2, vt);
+    return glm::clamp(YuMath::Lerp(l1, l2, vt), 0.0, 1.0);
 }
 
 double TerrainGenerator::CirclePattern(double x_off, double z_off)
