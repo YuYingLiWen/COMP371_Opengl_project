@@ -406,7 +406,7 @@ int main(void)
 
             if (ImGui::CollapsingHeader("Others"))
             {
-                ImGui::ColorEdit3("clear color", (float*)&clear_color);
+                //ImGui::ColorEdit3("clear color", (float*)&clear_color);
 
                 ImGui::DragFloat3("Directional Light", glm::value_ptr(directional_light), 0.01f, -100.0f, 100.0f);
 

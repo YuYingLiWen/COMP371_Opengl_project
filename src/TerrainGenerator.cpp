@@ -121,6 +121,8 @@ std::shared_ptr<Mesh> TerrainGenerator::GeneratePerlinTerrain(unsigned int x, un
         scale *= 2.0f;
     }
 
+    CalculateNormals(basic_mesh);
+
     return basic_mesh;
 }
 

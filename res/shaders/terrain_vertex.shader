@@ -20,6 +20,6 @@ void main()
 	gl_Position =  u_projection * u_view * u_model * vec4(position + height, 1.0f);
 
 	aNormal = normal;
-	aFragPos = vec3(u_model * vec4(position, 1.0));
+	aFragPos = position; // vec3(u_model * vec4(position, 1.0));
 };
 

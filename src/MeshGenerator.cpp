@@ -31,8 +31,6 @@ std::shared_ptr<Mesh> MeshGenerator::Generate(unsigned int x_count, unsigned int
     /// Generate Positions
     auto positions = std::make_shared<std::vector<glm::vec3>>();
 
-
-
     for (size_t z = 0; z < size_z; z++)
     {
         for (size_t x = 0; x < size_x; x++)
@@ -66,12 +64,23 @@ std::shared_ptr<Mesh> MeshGenerator::Generate(unsigned int x_count, unsigned int
         }
     }
     
+    
+
+    return std::make_shared<Mesh>(Mesh { positions, indexes, nullptr, glm::i32vec2(size_x, size_z)});
+}
+
+void MeshGenerator::CalculateNormals(std::shared_ptr<Mesh> mesh)
+{
+    int size = mesh->indexes->size();
+    auto& indexes = mesh->indexes;
+    auto& positions = mesh->positions;
+
     /// Generate Normals
     auto normals = std::make_shared<std::vector<glm::vec3>>();
     glm::vec3 p0;
     glm::vec3 p1;
     glm::vec3 p2;
-    for (size_t i = 0; i < indexes.get()->size(); i += 6)
+    for (size_t i = 0; i < size; i += 6)
     {
         //// A rectangle formed by 2 triangles
         // Triangle 1
@@ -89,7 +98,7 @@ std::shared_ptr<Mesh> MeshGenerator::Generate(unsigned int x_count, unsigned int
         normals.get()->push_back(glm::normalize(glm::cross(p2 - p0, p1 - p0)));
     }
 
-    return std::make_shared<Mesh>(Mesh { positions, indexes, normals, glm::i32vec2(size_x, size_z)});
+    mesh->normals = normals;
 }
 
 std::shared_ptr<Mesh> MeshGenerator::GenerateGrid(unsigned int size, float spread)

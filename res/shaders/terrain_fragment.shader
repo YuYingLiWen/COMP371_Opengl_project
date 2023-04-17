@@ -21,11 +21,11 @@ void main()
 		//FragColor = vec4(ambient,1.0);
 		vec4 f_color = vec4(0);
 
-		if (aFragPos.y < 5.0f) f_color = vec4(0, 0, 1, 1);
-		else if (aFragPos.y >= 5.5f && aFragPos.y < 20.0f) f_color = vec4(0, 1, 0, 1);
-		else if (aFragPos.y > 40.0f) f_color = vec4(1, 1, 1, 1);
+		//if (aFragPos.y < 5.0f) f_color = vec4(0, 0, 1, 1);
+		//else if (aFragPos.y >= 5.5f && aFragPos.y < 20.0f) f_color = vec4(0, 1, 0, 1);
+		//else if (aFragPos.y > 40.0f) f_color = vec4(1, 1, 1, 1);
 
-		float cos_angle = dot(aNormal, normalize(-u_light));
+		float cos_angle = dot(normalize(aNormal), normalize(u_light));
 
 		FragColor = f_color + ( u_color) * max(cos_angle, 0.0);
 	}

@@ -25,5 +25,8 @@ public:
 	std::shared_ptr<Mesh> Generate(unsigned int square_size);
 	std::shared_ptr<Mesh> Generate(unsigned int x_count, unsigned int z_count);
 	std::shared_ptr<Mesh> GenerateGrid(unsigned int size, float spread);
+
+	void CalculateNormals(std::shared_ptr<Mesh> mesh);
+
 };
 
