@@ -38,9 +38,8 @@ Camera camera(780, 1280, 65.0f);
 
 
 glm::i32vec2 terrain_dimensions(200, 200);
-int iter = 7;
-float amplitude = 70.0f;
-int split = 8;
+int iter = 8;
+float amplitude = 100.0f;
 
 
 extern std::vector<unsigned int> cube_indexes;
@@ -379,7 +378,7 @@ int main(void)
 
                 //ImGui::SliderInt("Gradient Grid Division", &split, 1, 10);
                 ImGui::SliderFloat("Amplitude", &amplitude, 0.0f, 100.0f);
-                ImGui::SliderInt("Iteration", &iter, 1, 1000);
+                ImGui::SliderInt("Iteration", &iter, 1, 8);
 
                 ImGui::InputInt2("Terrain Dimension", glm::value_ptr(terrain_dimensions));
 
