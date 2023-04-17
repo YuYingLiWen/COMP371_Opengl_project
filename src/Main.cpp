@@ -124,7 +124,7 @@ int main(void)
 
     
     //// Perlin noise map
-    auto terrain_data = tg.GeneratePerlinTerrain(terrain_dimensions.x, terrain_dimensions.y, iter, amplitude, split);//tg.Generate(terrain_dimensions, glm::vec2((float)terrain_dimensions.x * 0.5f, (float)terrain_dimensions.y * 0.5f), terrain_dimensions.x * 0.5f, 50.0f);
+    auto terrain_data = tg.GeneratePerlinTerrain(terrain_dimensions.x, terrain_dimensions.y, iter, amplitude);//tg.Generate(terrain_dimensions, glm::vec2((float)terrain_dimensions.x * 0.5f, (float)terrain_dimensions.y * 0.5f), terrain_dimensions.x * 0.5f, 50.0f);
     auto base_mesh = mg.Generate(terrain_dimensions);
     TerrainObject* terrain2 = nullptr;
     SceneObject* terrain_normals = nullptr;
@@ -316,7 +316,7 @@ int main(void)
                 else if (terrain_t <= 0.0f) // Back to origin
                 {
                     delete terrain2;
-                    terrain_data = tg.GeneratePerlinTerrain(terrain_dimensions.x, terrain_dimensions.y, iter, amplitude, split);
+                    terrain_data = tg.GeneratePerlinTerrain(terrain_dimensions.x, terrain_dimensions.y, iter, amplitude);
                     base_mesh = mg.Generate(terrain_dimensions);
                     terrain2 = new TerrainObject(terrain_data, base_mesh->positions.get());
 
@@ -377,9 +377,9 @@ int main(void)
             {
                 ImGui::SeparatorText("Terrain");
 
-                ImGui::SliderInt("Gradient Grid Division", &split, 1, 10);
+                //ImGui::SliderInt("Gradient Grid Division", &split, 1, 10);
                 ImGui::SliderFloat("Amplitude", &amplitude, 0.0f, 100.0f);
-                ImGui::SliderInt("Iteration", &iter, 1, 100);
+                ImGui::SliderInt("Iteration", &iter, 1, 1000);
 
                 ImGui::InputInt2("Terrain Dimension", glm::value_ptr(terrain_dimensions));
 

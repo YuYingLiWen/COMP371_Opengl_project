@@ -88,7 +88,7 @@ std::vector<double>* TerrainGenerator::GenerateHeights(TerrainType type, glm::i3
     return heights;
 }
 
-std::shared_ptr<Mesh> TerrainGenerator::GeneratePerlinTerrain(unsigned int x, unsigned int z, unsigned int iter, float amplitude, unsigned int split)
+std::shared_ptr<Mesh> TerrainGenerator::GeneratePerlinTerrain(unsigned int x, unsigned int z, unsigned int iter, float amplitude)
 {
     auto basic_mesh = MeshGenerator::Generate(x, z);
 
@@ -96,12 +96,12 @@ std::shared_ptr<Mesh> TerrainGenerator::GeneratePerlinTerrain(unsigned int x, un
     float ratio_x = (float)x / (float)z;
     float ratio_z = (float)z / (float)x;
 
+    float scale = 1.0f;
+
     for (int i = 0; i < iter; i++)
     {
-        if (amplitude < 0.125f) break;
-
-        int size_x = (float)split * ratio_x * ((float)i + 1.0f);
-        int size_z = (float)split * ratio_z * ((float)i + 1.0f);
+        int size_x = scale * ratio_x * ((float)i + 1.0f); // gradient grid cell x
+        int size_z = scale * ratio_z * ((float)i + 1.0f); // gradient grid cell z
 
         grid.Generate(glm::max(size_x, 1), glm::max(size_z, 1)); // Generate terrain grid
 
@@ -118,6 +118,7 @@ std::shared_ptr<Mesh> TerrainGenerator::GeneratePerlinTerrain(unsigned int x, un
         }
 
         amplitude *= 0.5f;
+        scale *= 2.0f;
     }
 
     return basic_mesh;

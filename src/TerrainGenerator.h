@@ -35,9 +35,9 @@ public:
 	std::shared_ptr<Mesh> Generate(TerrainType type, glm::i32vec2 dimensions, float freq);
 	std::shared_ptr<Mesh> Generate(glm::i32vec2 dimensions, glm::vec2 center, float radius, float freq);
 	std::shared_ptr<Mesh> Generate(TerrainType type, unsigned int x, unsigned int z, float freq);
-	std::shared_ptr<Mesh> GeneratePerlinTerrain(unsigned int x, unsigned int z, unsigned int iter, float amplitude, unsigned int split);
 	std::vector<double>* GenerateHeights(TerrainType type, unsigned int x, unsigned int z, float freq);
 	std::vector<double>* GenerateHeights(TerrainType type, glm::i32vec2 dimensions, float freq);
+	std::shared_ptr<Mesh> GeneratePerlinTerrain(unsigned int x, unsigned int z, unsigned int iter, float amplitude);
 	std::vector<double>* GenerateCircularHeights(glm::i32vec2 dimensions, glm::vec2 center, float radius, float freq);
 
 private:
